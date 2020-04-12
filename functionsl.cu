@@ -65,6 +65,7 @@ int num_part, float box_l, float ener)
     {
         for (j = 0; j < num_part; j++)
         {
+            if (i == j) continue;
             // Siempre inicializar en cero
             uij = 0.0f;  
             fij = 0.0f;  
