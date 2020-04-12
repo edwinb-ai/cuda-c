@@ -4,7 +4,7 @@
 #include <math.h>
 #include <stdio.h>
 #include "functionsl.h"
-#include <cuda.h>
+#include "cuda.h"
 #include "curand.h"
 
 // Algunas variables globales
