@@ -61,7 +61,7 @@ int num_part, float box_l, float ener)
         fz[i] = 0.0f;
     }
 
-    for (i = 0; i < num_part; i+=)
+    for (i = 0; i < num_part; i++)
     {
         if (i != idx)
         {
