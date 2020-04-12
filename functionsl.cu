@@ -49,7 +49,7 @@ int num_part, float box_l, float ener)
     float xij = 0.0f, yij = 0.0f, zij = 0.0f, rij = 0.0f;
     float fij = 0.0f;
     float uij = 0.0f;
-    int i = 0, j = 0;
+    int i = 0;
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
     int stride = blockDim.x * gridDim.x;
 
@@ -70,9 +70,9 @@ int num_part, float box_l, float ener)
             fij = 0.0f;  
 
             // Contribucion de pares
-            xij = x[i] - x[j];
-            yij = y[i] - y[j];
-            zij = z[i] - z[j];
+            xij = x[idx] - x[i];
+            yij = y[idx] - y[i];
+            zij = z[idx] - z[i];
 
             // Condiciones de frontera
             xij -= (box_l * round(xij/box_l));

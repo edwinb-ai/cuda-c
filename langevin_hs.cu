@@ -21,7 +21,7 @@ int main(int argc, char const *argv[])
     int ncp = atoi(argv[3]);
     //  Paso de tiempo
     float d_tiempo = atof(argv[4]);
-    unsigned long long seed = (unsigned long long) atoi(argv[5]);
+    unsigned long long seed = (unsigned long long)atoi(argv[5]);
     //  Revisar si ya se tiene una configuración de termalización
     int config_termal = atoi(argv[6]);
 
@@ -104,7 +104,6 @@ int main(int argc, char const *argv[])
     rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener);
     cudaDeviceSynchronize();
     printf("E/N: %.10f\n", ener / ((float)(n_part)));
-    
 
     // Termalizar el sistema
     f_ener = fopen("energia.dat", "w");
@@ -121,6 +120,10 @@ int main(int argc, char const *argv[])
         if (i % 1000 == 0)
         {
             printf("%d %.10f Thermal\n", i, ener / ((float)(n_part)));
+            for (int i = 0; i < n_part; i++)
+            {
+                printf("%.10f %.10f %.10f\n", x[i], y[i], z[i]);
+            }
         }
         if (i % 100 == 0)
         {
