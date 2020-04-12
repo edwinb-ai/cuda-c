@@ -53,17 +53,14 @@ int num_part, float box_l, float ener)
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
     int stride = blockDim.x * gridDim.x;
 
-    // Inicializar arreglos para la fuerza
-    for (i = idx; i < num_part; i+=stride)
+    if (idx < num_part)
     {
-        fx[i] = 0.0f;
-        fy[i] = 0.0f;
-        fz[i] = 0.0f;
-    }
+        // Inicializar arreglos para la fuerza
+        fx[idx] = 0.0f;
+        fy[idx] = 0.0f;
+        fz[idx] = 0.0f;
 
-    for (i = 0; i < num_part; i++)
-    {
-        if (i != idx)
+        for (i = idx+1; i < num_part; i++)
         {
             // Siempre inicializar en cero
             uij = 0.0f;  
@@ -75,9 +72,9 @@ int num_part, float box_l, float ener)
             zij = z[idx] - z[i];
 
             // Condiciones de frontera
-            xij -= (box_l * round(xij/box_l));
-            yij -= (box_l * round(yij/box_l));
-            zij -= (box_l * round(zij/box_l));
+            xij -= (box_l * roundf(xij/box_l));
+            yij -= (box_l * roundf(yij/box_l));
+            zij -= (box_l * roundf(zij/box_l));
 
             rij = sqrtf(xij*xij + yij*yij + zij*zij);
 
