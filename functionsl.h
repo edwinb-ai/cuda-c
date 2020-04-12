@@ -23,11 +23,11 @@ int num_part, float box_l, float ener);
 
 float hardsphere(float rij);
 
-void position(float *x, float *y, float *z, float *fx, float *fy, float *fz, float dtt,
-              float box_l, int num_part, int pbc);
+// void position(float *x, float *y, float *z, float *fx, float *fy, float *fz, float dtt,
+//               float box_l, int num_part, int pbc);
 
-void gr(float *x, float *y, float *z, float *g, int num_part, float box_l);
+// void gr(float *x, float *y, float *z, float *g, int num_part, float box_l);
 
-void difusion(const int nprom, const int n_part, float *cfx, float *cfy, float *cfz, float *wt);
+// void difusion(const int nprom, const int n_part, float *cfx, float *cfy, float *cfz, float *wt);
 
 #endif
