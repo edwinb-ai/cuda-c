@@ -7,8 +7,8 @@ static const float a_param = 134.5526623421209f;
 static const float b_param = 1.0204081632653061f;
 static const float temp = 1.4737f;
 static const int mt_n = 30000;
-static const int mp = 5000;
-static const int nm = 5000;
+static const int mp = 3000;
+static const int nm = 3000;
 static const float pi = 3.141592653589793f;
 
 // Funciones generales del código

@@ -94,7 +94,7 @@ int main(int argc, char const *argv[])
     }
 
     // Verificar que la energía es cero
-    rdf_force(x, y, z, fx, fy, fz, n_part, l_caja, ener);
+    rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener);
     cudaDeviceSynchronize();
     printf("E/N: %.10f\n", ener / ((float)(n_part)));
     cudaDeviceReset();
