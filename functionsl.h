@@ -1,5 +1,9 @@
 #ifndef FUNCTIONSL_H
 #define FUNCTIONSL_H
+#include <stdlib.h>
+#include <math.h>
+#include <stdio.h>
+#include "functionsl.h"
 
 // Algunas variables globales
 static const float lambda = 50.0f;

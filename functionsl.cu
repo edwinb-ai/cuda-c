@@ -1,10 +1,3 @@
-#include <stdlib.h>
-#include <math.h>
-#include <stdio.h>
-//#include <omp.h>
-#include "random_s.h"
-#include "functionsl.h"
-
 void iniconf(float* x, float* y, float* z, float rho, float rc, int num_part)
 {
     // Definir la distancia según la densidad

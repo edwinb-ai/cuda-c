@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <math.h>
-#include <stdlib.h>
 #include "functionsl.h"
 
 int main(int argc, char const *argv[])
