@@ -33,41 +33,41 @@ void iniconf(float* x, float* y, float* z, float rho, float rc, int num_part)
 
 __device__ void hardsphere(float r_pos, float uij)
 {
-    uij = (a_param/temp) * (powf(1.0/r_pos, lambda) - powf(1.0/r_pos, lambda-1.0));
+    uij = (a_param/temp) * (powf(1.0f/r_pos, lambda) - powf(1.0f/r_pos, lambda-1.0f));
 
-    uij += 1.0 / temp;
+    uij += 1.0f / temp;
 }
 
 __global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
 int num_part, float box_l, float ener)
 {
     // Parámetros
-    float rc = box_l/2.0;
+    float rc = box_l/2.0f;
     float d_r = rc / nm;
 
     // Inicializar algunas variables de la posicion
-    float xij = 0.0, yij = 0.0, zij = 0.0, rij = 0.0;
-    float fij = 0.0;
-    float uij = 0.0;
+    float xij = 0.0f, yij = 0.0f, zij = 0.0f, rij = 0.0f;
+    float fij = 0.0f;
+    float uij = 0.0f;
     int i = 0, j = 0;
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
-    int stride = blockDim.x * gridDim.x;
+    // int stride = blockDim.x * gridDim.x;
 
     // Inicializar arreglos para la fuerza
     for (i = idx; i < num_part; i+=stride)
     {
-        fx[i] = 0.0;
-        fy[i] = 0.0;
-        fz[i] = 0.0;
+        fx[i] = 0.0f;
+        fy[i] = 0.0f;
+        fz[i] = 0.0f;
     }
 
-    for (i = idx; i < num_part; i+=stride)
+    for (i = 0; i < num_part; i+=)
     {
-        for (j = i+1; j < num_part-1; j+=stride)
+        if (i != idx)
         {
             // Siempre inicializar en cero
-            uij = 0.0;  
-            fij = 0.0;  
+            uij = 0.0f;  
+            fij = 0.0f;  
 
             // Contribucion de pares
             xij = x[i] - x[j];
@@ -93,17 +93,17 @@ int num_part, float box_l, float ener)
                 }
                 else
                 {
-                    uij = 0.0;
-                    fij = 0.0;
+                    uij = 0.0f;
+                    fij = 0.0f;
                 }
                 // Actualizar los valores de las fuerzas
-                fx[i] += (fij*xij)/rij;
-                fy[i] += (fij*yij)/rij;
-                fz[i] += (fij*zij)/rij;
+                fx[idx] += (fij*xij)/rij;
+                fy[idx] += (fij*yij)/rij;
+                fz[idx] += (fij*zij)/rij;
                 
-                fx[j] -= (fij*xij)/rij;
-                fy[j] -= (fij*yij)/rij;
-                fz[j] -= (fij*zij)/rij;
+                fx[i] -= (fij*xij)/rij;
+                fy[i] -= (fij*yij)/rij;
+                fz[i] -= (fij*zij)/rij;
                 ener = ener + uij;
                 // printf("%f\n", ener);
             }
@@ -119,7 +119,7 @@ int num_part, float box_l, float ener)
 
 //     int nbin = 0;
 //     int i = 0, j = 0;
-//     float xij = 0.0, yij = 0.0, zij = 0.0, rij = 0.0;
+//     float xij = 0.0f, yij = 0.0f, zij = 0.0f, rij = 0.0f;
 
 //     // #pragma omp parallel for num_threads(30) default(shared) private(xij,yij,zij,i,j,rij)
 //     for (i = 0; i < num_part; i++)
@@ -155,12 +155,15 @@ __global__ void position(float* x, float* y, float* z, float* fx, float* fy, flo
 float box_l, int num_part, int pbc, float *randvec)
 {
     // Inicializar algunas variables
-    float dx = 0.0;
-    float dy = 0.0;
-    float dz = 0.0;
+    float dx = 0.0f;
+    float dy = 0.0f;
+    float dz = 0.0f;
     float sigma = sqrtf(2.0*dtt);
+    int i = 0;
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+    int stride = blockDim.x * gridDim.x;
 
-    for (int i = 0; i < num_part; i++)
+    for (i = idx; i < num_part; i+=stride)
     {
         dx = sigma * randvec[i];
         dy = sigma * randvec[i+1];
@@ -183,15 +186,15 @@ float box_l, int num_part, int pbc, float *randvec)
 
 // void difusion(const int nprom, const int n_part, float* cfx, float* cfy, float* cfz, float* wt)
 // {
-//     float dif = 0.0;
+//     float dif = 0.0f;
 //     int i = 0, j = 0, k = 0;
-//     float dx = 0.0, dy = 0.0, dz = 0.0, aux = 0.0;
+//     float dx = 0.0f, dy = 0.0f, dz = 0.0f, aux = 0.0f;
     
 //     // #pragma omp parallel for 
 //     // Mean-squared displacement
 //     for (i = 0; i < nprom; i++)
 //     {
-//         dif = 0.0;
+//         dif = 0.0f;
 //         // printf("%d\n", nprom-i);
 //         for (j = 0; j < nprom-i; j++)
 //         {
