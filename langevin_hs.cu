@@ -118,13 +118,13 @@ int main(int argc, char const *argv[])
         if (i % 1000 == 0)
         {
             printf("%d %.10f Thermal\n", i, ener / ((float)(n_part)));
-            for (int i = 0; i < n_part; i++)
+            for (int k = 0; k < n_part; k++)
             {
-                printf("%.10f %.10f %.10f\n", x[i], y[i], z[i]);
+                printf("%.10f %.10f %.10f\n", x[k], y[k], z[k]);
                 printf("FORCES\n");
-                printf("%.10f %.10f %.10f\n", fx[i], fy[i], fz[i]);
+                printf("%.10f %.10f %.10f\n", fx[k], fy[k], fz[k]);
                 printf("RNG\n");
-                printf("%.10f %.10f %.10f\n", rngvec_dev[3*i], rngvec_dev[(3*i)+1], rngvec_dev[(3*i)+2]);
+                printf("%.10f %.10f %.10f\n", rngvec_dev[3*k], rngvec_dev[(3*k)+1], rngvec_dev[(3*k)+2]);
             }
         }
         if (i % 100 == 0)
