@@ -21,7 +21,7 @@ int main(int argc, char const *argv[])
     int ncp = atoi(argv[3]);
     //  Paso de tiempo
     float d_tiempo = atof(argv[4]);
-    unsigned long long seed = atoi(argv[5]);
+    unsigned long long seed = (unsigned long long) atoi(argv[5]);
     //  Revisar si ya se tiene una configuración de termalización
     int config_termal = atoi(argv[6]);
 
