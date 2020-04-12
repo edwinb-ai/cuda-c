@@ -21,8 +21,9 @@ int main(int argc, char const *argv[])
     int ncp = atoi(argv[3]);
     //  Paso de tiempo
     float d_tiempo = atof(argv[4]);
+    unsigned long long seed = atoi(argv[5]);
     //  Revisar si ya se tiene una configuración de termalización
-    int config_termal = atoi(argv[5]);
+    int config_termal = atoi(argv[6]);
 
     // Tamaño de caja
     float l_caja = powf((float)(n_part) / rho, 1.0 / 3.0);
@@ -41,7 +42,7 @@ int main(int argc, char const *argv[])
     // ! Create pseudo-random number generator
     curandCreateGenerator(&gen, CURAND_RNG_PSEUDO_DEFAULT);
     // ! Set seed
-    curandSetPseudoRandomGeneratorSeed(gen, 1234ULL);
+    curandSetPseudoRandomGeneratorSeed(gen, seed);
 
     // Inicializar los arreglos
     float *x;

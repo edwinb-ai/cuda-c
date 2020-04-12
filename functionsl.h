@@ -26,7 +26,7 @@ int num_part, float box_l, float ener);
 float hardsphere(float rij);
 
 __global__ void position(float* x, float* y, float* z, float* fx, float* fy, float* fz, float dtt,
-float box_l, int num_part, int pbc, float randvec);
+float box_l, int num_part, int pbc, float *randvec);
 
 // void gr(float *x, float *y, float *z, float *g, int num_part, float box_l);
 

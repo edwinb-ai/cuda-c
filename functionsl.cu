@@ -152,7 +152,7 @@ int num_part, float box_l, float ener)
 // }
 
 __global__ void position(float* x, float* y, float* z, float* fx, float* fy, float* fz, float dtt,
-float box_l, int num_part, int pbc, float randvec)
+float box_l, int num_part, int pbc, float *randvec)
 {
     // Inicializar algunas variables
     float dx = 0.0;
