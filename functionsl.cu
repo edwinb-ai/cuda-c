@@ -151,33 +151,33 @@ int num_part, float box_l, float ener)
 //     }
 // }
 
-// void position(float* x, float* y, float* z, float* fx, float* fy, float* fz, float dtt,
-// float box_l, int num_part, int pbc)
-// {
-//     // Inicializar algunas variables
-//     float dx = 0.0;
-//     float dy = 0.0;
-//     float dz = 0.0;
-//     float sigma = sqrtf(2.0*dtt);
+__global__ void position(float* x, float* y, float* z, float* fx, float* fy, float* fz, float dtt,
+float box_l, int num_part, int pbc, float randvec)
+{
+    // Inicializar algunas variables
+    float dx = 0.0;
+    float dy = 0.0;
+    float dz = 0.0;
+    float sigma = sqrtf(2.0*dtt);
 
-//     for (int i = 0; i < num_part; i++)
-//     {
-//         dx = sigma * gasdev();
-//         dy = sigma * gasdev();
-//         dz = sigma * gasdev();
+    for (int i = 0; i < num_part; i++)
+    {
+        dx = sigma * randvec[i];
+        dy = sigma * randvec[i+1];
+        dz = sigma * randvec[i+2];
 
-//         x[i] += fx[i]*dtt + dx;
-//         y[i] += fy[i]*dtt + dy;
-//         z[i] += fz[i]*dtt + dz;
+        x[i] += fx[i]*dtt + dx;
+        y[i] += fy[i]*dtt + dy;
+        z[i] += fz[i]*dtt + dz;
 
-//         if (pbc == 1)
-//         {
-//             x[i] -= (box_l * round(x[i]/box_l));
-//             y[i] -= (box_l * round(y[i]/box_l));
-//             z[i] -= (box_l * round(z[i]/box_l));
-//         }
-//     }
-// }
+        if (pbc == 1)
+        {
+            x[i] -= (box_l * round(x[i]/box_l));
+            y[i] -= (box_l * round(y[i]/box_l));
+            z[i] -= (box_l * round(z[i]/box_l));
+        }
+    }
+}
 
 // // void difusion(int nprom, int n_part, float cfx[mt_n][mp], float cfy[mt_n][mp], float cfz[mt_n][mp], float* wt)
 

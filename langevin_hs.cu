@@ -34,6 +34,15 @@ int main(int argc, char const *argv[])
     printf("Distancia media entre partículas: %f\n", powf(rho, -1.0 / 3.0));
     printf("Radio de corte: %f\n", radio_c);
 
+    // ! RNG variables
+    curandGenerator_t gen;
+    float *rngvec_dev;
+    cudaMallocManaged(&rngvec_dev, 3 * n_part * sizeof(float));
+    // ! Create pseudo-random number generator
+    curandCreateGenerator(&gen, CURAND_RNG_PSEUDO_DEFAULT);
+    // ! Set seed
+    curandSetPseudoRandomGeneratorSeed(gen, 1234ULL);
+
     // Inicializar los arreglos
     float *x;
     cudaMallocManaged(&x, n_part * sizeof(float));
@@ -94,26 +103,30 @@ int main(int argc, char const *argv[])
     rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener);
     cudaDeviceSynchronize();
     printf("E/N: %.10f\n", ener / ((float)(n_part)));
-    cudaDeviceReset();
+    
 
-    // // Termalizar el sistema
-    // f_ener = fopen("energia.dat", "w");
-    // f_final = fopen("final_conf.dat", "w");
+    // Termalizar el sistema
+    f_ener = fopen("energia.dat", "w");
+    f_final = fopen("final_conf.dat", "w");
 
-    // for (int i = 0; i < nct; i++)
-    // {
-    //     position(x, y, z, fx, fy, fz, d_tiempo, l_caja, n_part, 1);
-    //     ener = rdf_force(x, y, z, fx, fy, fz, n_part, l_caja);
-    //     if (i % 1000 == 0)
-    //     {
-    //         printf("%d %.10f Thermal\n", i, ener / ((float)(n_part)));
-    //     }
-    //     if (i % 100 == 0)
-    //     {
-    //         fprintf(f_ener, "%d %.10f\n", i, ener / ((float)(n_part)));
-    //     }
-    // }
-    // fclose(f_ener);
+    for (size_t i = 0; i < nct; i++)
+    {
+        // * Crear números aleatorios
+        curandGenerateUniform(gen, rngvec_dev, 3 * n_part);
+        position<<<bloques, hilos>>>(x, y, z, fx, fy, fz, d_tiempo, l_caja, n_part, 1, rngvec_dev);
+        cudaDeviceSynchronize();
+        rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener);
+        cudaDeviceSynchronize();
+        if (i % 1000 == 0)
+        {
+            printf("%d %.10f Thermal\n", i, ener / ((float)(n_part)));
+        }
+        if (i % 100 == 0)
+        {
+            fprintf(f_ener, "%d %.10f\n", i, ener / ((float)(n_part)));
+        }
+    }
+    fclose(f_ener);
 
     // // Guardar la configuración final después de termalizar
     // for (int i = 0; i < n_part; i++)
@@ -175,12 +188,15 @@ int main(int argc, char const *argv[])
     // }
     // fclose(wt_f);
 
+    // ! Cleanup
+    curandDestroyGenerator(gen);
     cudaFree(x);
     cudaFree(y);
     cudaFree(z);
     cudaFree(fx);
     cudaFree(fy);
     cudaFree(fz);
+    cudaFree(rngvec_dev);
     // free(r);
     // free(g);
     // free(t);
@@ -189,6 +205,5 @@ int main(int argc, char const *argv[])
     // free(cfz);
     // free(wt);
     // free(h);
-
-    exit(EXIT_SUCCESS);
+    return EXIT_SUCCESS;
 }

@@ -4,16 +4,18 @@
 #include <math.h>
 #include <stdio.h>
 #include "functionsl.h"
+#include <cuda.h>
+#include "curand.h"
 
 // Algunas variables globales
 static const float lambda = 50.0f;
-static const float a_param = 134.5526623421209f;
-static const float b_param = 1.0204081632653061f;
+static const float a_param = 134.552662342f;
+static const float b_param = 1.0204081632f;
 static const float temp = 1.4737f;
-static const int mt_n = 30000;
+static const int mt_n = 300000;
 static const int mp = 3000;
 static const int nm = 3000;
-static const float pi = 3.141592653589793f;
+static const float pi = 3.14159265f;
 
 // Funciones generales del código
 void iniconf(float *x, float *y, float *z, float rho, float t_caja, int num_part);
@@ -23,8 +25,8 @@ int num_part, float box_l, float ener);
 
 float hardsphere(float rij);
 
-// void position(float *x, float *y, float *z, float *fx, float *fy, float *fz, float dtt,
-//               float box_l, int num_part, int pbc);
+__global__ void position(float* x, float* y, float* z, float* fx, float* fy, float* fz, float dtt,
+float box_l, int num_part, int pbc, float randvec);
 
 // void gr(float *x, float *y, float *z, float *g, int num_part, float box_l);
 
