@@ -60,6 +60,10 @@ int main(int argc, char const *argv[])
     float *cfz = calloc(mt_n * n_part, sizeof(float));
     float ener = 0.0;
 
+    // Asignar hilos y bloques
+    int hilos = 256;
+    int bloques = 1 + (n_part - 1) / hilos;
+
     // SI SE INGRESA UNA CONFIGURACION DE TERMALIZACION, SE LEE:
     if (config_termal == 1)
     {
@@ -90,7 +94,7 @@ int main(int argc, char const *argv[])
     }
 
     // Verificar que la energía es cero
-    ener = rdf_force(x, y, z, fx, fy, fz, n_part, l_caja);
+    rdf_force(x, y, z, fx, fy, fz, n_part, l_caja, ener);
     cudaDeviceSynchronize();
     printf("E/N: %.10f\n", ener / ((float)(n_part)));
     cudaDeviceReset();

@@ -1,5 +1,5 @@
-gcc -O3 langevin_hs.c random_s.c functionsl.c -o browniano -lm;
-time ./browniano 0.40 10000 50000 0.00001 12398765 0 gr_1.dat;
+nvcc langevin_hs.c functionsl.c -o browniano;
+# time ./browniano 0.40 10000 50000 0.00001 12398765 0 gr_1.dat;
 # ./a.out 0.40 0 100000 0.00001 12398765 1 gr_1.dat
 # ./a.out 0.40 0 100000 0.00001 32497068 1 gr_2.dat
 

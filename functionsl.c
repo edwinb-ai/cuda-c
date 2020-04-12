@@ -5,10 +5,10 @@
 #include "random_s.h"
 #include "functionsl.h"
 
-void iniconf(double* x, double* y, double* z, double rho, double rc, int num_part)
+void iniconf(float* x, float* y, float* z, float rho, float rc, int num_part)
 {
     // Definir la distancia según la densidad
-    double dist = pow(1.0/rho, 1.0/3.0);
+    float dist = powf(1.0/rho, 1.0/3.0);
 
     // Inicializar las primeras posiciones
     x[0] = - rc + (dist / 2.0);
@@ -36,41 +36,39 @@ void iniconf(double* x, double* y, double* z, double rho, double rc, int num_par
     }
 }
 
-double hardsphere(double r_pos)
+__device__ void hardsphere(float r_pos, float uij)
 {
-    double uij = 0.0;
-
-    uij = (a_param/temp) * (pow(1.0/r_pos, lambda) - pow(1.0/r_pos, lambda-1.0));
+    uij = (a_param/temp) * (powf(1.0/r_pos, lambda) - powf(1.0/r_pos, lambda-1.0));
 
     uij += 1.0 / temp;
-
-    return uij;
 }
 
-double rdf_force(double* x, double* y, double* z, double* fx, double* fy, double* fz, int num_part, double box_l)
+__global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
+int num_part, float box_l, float ener)
 {
     // Parámetros
-    double rc = box_l/2.0;
-    double d_r = rc / nm;
+    float rc = box_l/2.0;
+    float d_r = rc / nm;
 
     // Inicializar algunas variables de la posicion
-    double xij = 0.0, yij = 0.0, zij = 0.0, rij = 0.0;
-    double fij = 0.0;
-    double uij = 0.0, ener = 0.0;
-    size_t i = 0, j = 0;
+    float xij = 0.0, yij = 0.0, zij = 0.0, rij = 0.0;
+    float fij = 0.0;
+    float uij = 0.0;
+    int i = 0, j = 0;
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+    int stride = blockDim.x * gridDim.x;
 
     // Inicializar arreglos para la fuerza
-    for (i = 0; i < num_part; i++)
+    for (i = idx; i < num_part; i+=stride)
     {
         fx[i] = 0.0;
         fy[i] = 0.0;
         fz[i] = 0.0;
     }
 
-    // #pragma omp parallel for num_threads(30) default(shared) private(xij,yij,zij,i,j,rij) reduction(+:ener) 
-    for (i = 0; i < num_part; i++)
+    for (i = idx; i < num_part; i+=stride)
     {
-        for (j = i+1; j < num_part-1; j++)
+        for (j = i+1; j < num_part-1; j+=stride)
         {
             // Siempre inicializar en cero
             uij = 0.0;  
@@ -86,15 +84,15 @@ double rdf_force(double* x, double* y, double* z, double* fx, double* fy, double
             yij -= (box_l * round(yij/box_l));
             zij -= (box_l * round(zij/box_l));
 
-            rij = sqrt(xij*xij + yij*yij + zij*zij);
+            rij = sqrtf(xij*xij + yij*yij + zij*zij);
 
             if (rij < rc)
             {
                 // Siempre se calcula la fuerza
                 if (rij < b_param)
                 {
-                    uij = hardsphere(rij);
-                    fij = lambda*pow(1.0/rij, lambda+1.0) - (lambda-1.0)*pow(1.0/rij, lambda);
+                    hardsphere(rij, uij);
+                    fij = lambda*powf(1.0/rij, lambda+1.0) - (lambda-1.0)*powf(1.0/rij, lambda);
                     fij *= (a_param/temp);
                     // printf("%f\n", uij);
                 }
@@ -116,19 +114,17 @@ double rdf_force(double* x, double* y, double* z, double* fx, double* fy, double
             }
         }
     }
-
-    return ener;
 }
 
-void gr(double* x, double* y, double* z, double* g, int num_part, double box_l)
+void gr(float* x, float* y, float* z, float* g, int num_part, float box_l)
 {
     // Parámetros
-    double rc = box_l/2.0;
-    double d_r = rc / nm;
+    float rc = box_l/2.0;
+    float d_r = rc / nm;
 
     int nbin = 0;
     int i = 0, j = 0;
-    double xij = 0.0, yij = 0.0, zij = 0.0, rij = 0.0;
+    float xij = 0.0, yij = 0.0, zij = 0.0, rij = 0.0;
 
     // #pragma omp parallel for num_threads(30) default(shared) private(xij,yij,zij,i,j,rij)
     for (i = 0; i < num_part; i++)
@@ -146,7 +142,7 @@ void gr(double* x, double* y, double* z, double* g, int num_part, double box_l)
             yij -= (box_l * round(yij/box_l));
             zij -= (box_l * round(zij/box_l));
 
-            rij = sqrt(xij*xij + yij*yij + zij*zij);
+            rij = sqrtf(xij*xij + yij*yij + zij*zij);
 
             if (rij < rc)
             {
@@ -160,14 +156,14 @@ void gr(double* x, double* y, double* z, double* g, int num_part, double box_l)
     }
 }
 
-void position(double* x, double* y, double* z, double* fx, double* fy, double* fz, double dtt,
-double box_l, int num_part, int pbc)
+void position(float* x, float* y, float* z, float* fx, float* fy, float* fz, float dtt,
+float box_l, int num_part, int pbc)
 {
     // Inicializar algunas variables
-    double dx = 0.0;
-    double dy = 0.0;
-    double dz = 0.0;
-    double sigma = sqrt(2.0*dtt);
+    float dx = 0.0;
+    float dy = 0.0;
+    float dz = 0.0;
+    float sigma = sqrtf(2.0*dtt);
 
     for (int i = 0; i < num_part; i++)
     {
@@ -188,13 +184,13 @@ double box_l, int num_part, int pbc)
     }
 }
 
-// void difusion(int nprom, int n_part, double cfx[mt_n][mp], double cfy[mt_n][mp], double cfz[mt_n][mp], double* wt)
+// void difusion(int nprom, int n_part, float cfx[mt_n][mp], float cfy[mt_n][mp], float cfz[mt_n][mp], float* wt)
 
-void difusion(const int nprom, const int n_part, double* cfx, double* cfy, double* cfz, double* wt)
+void difusion(const int nprom, const int n_part, float* cfx, float* cfy, float* cfz, float* wt)
 {
-    double dif = 0.0;
+    float dif = 0.0;
     int i = 0, j = 0, k = 0;
-    double dx = 0.0, dy = 0.0, dz = 0.0, aux = 0.0;
+    float dx = 0.0, dy = 0.0, dz = 0.0, aux = 0.0;
     
     // #pragma omp parallel for 
     // Mean-squared displacement
