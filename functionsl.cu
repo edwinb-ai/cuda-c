@@ -151,7 +151,7 @@ __global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, fl
 // }
 
 __global__ void position(float *x, float *y, float *z, float *fx, float *fy, float *fz, float dtt,
-                         float box_l, int num_part, int pbc, float *randvecx, float *randvecy, float *randvecz);
+                         float box_l, int num_part, int pbc, float *randvec);
 {
     // Inicializar algunas variables
     float dx = 0.0f;
@@ -164,9 +164,9 @@ __global__ void position(float *x, float *y, float *z, float *fx, float *fy, flo
 
     for (i = idx; i < num_part; i += stride)
     {
-        dx = sigma * randvecx[i];
-        dy = sigma * randvecy[i];
-        dz = sigma * randvecz[i];
+        dx = sigma * randvec[i];
+        dy = sigma * randvec[i+1];
+        dz = sigma * randvec[i+2];
 
         x[i] += fx[i] * dtt + dx;
         y[i] += fy[i] * dtt + dy;
