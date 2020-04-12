@@ -1,31 +1,31 @@
 #include "functionsl.h"
 
-void iniconf(float* x, float* y, float* z, float rho, float rc, int num_part)
+void iniconf(float *x, float *y, float *z, float rho, float rc, int num_part)
 {
     // Definir la distancia según la densidad
-    float dist = powf(1.0/rho, 1.0/3.0);
+    float dist = powf(1.0 / rho, 1.0 / 3.0);
 
     // Inicializar las primeras posiciones
-    x[0] = - rc + (dist / 2.0);
-    y[0] = - rc + (dist / 2.0);
-    z[0] = - rc + (dist / 2.0);
+    x[0] = -rc + (dist / 2.0);
+    y[0] = -rc + (dist / 2.0);
+    z[0] = -rc + (dist / 2.0);
 
-    for (int i = 1; i < num_part-1; i++)
+    for (int i = 1; i < num_part - 1; i++)
     {
-        x[i] = x[i-1] + dist;
-        y[i] = y[i-1];
-        z[i] = z[i-1];
+        x[i] = x[i - 1] + dist;
+        y[i] = y[i - 1];
+        z[i] = z[i - 1];
 
         if (x[i] > rc)
         {
             x[i] = x[0];
-            y[i] = y[i-1] + dist;
+            y[i] = y[i - 1] + dist;
 
             if (y[i] > rc)
             {
                 x[i] = x[0];
                 y[i] = y[0];
-                z[i] = z[i-1] + dist;
+                z[i] = z[i - 1] + dist;
             }
         }
     }
@@ -33,13 +33,13 @@ void iniconf(float* x, float* y, float* z, float rho, float rc, int num_part)
 
 __device__ void hardsphere(float r_pos, float uij)
 {
-    uij = (a_param/temp) * (powf(1.0f/r_pos, lambda) - powf(1.0f/r_pos, lambda-1.0f));
+    uij = (a_param / temp) * (powf(1.0f / r_pos, lambda) - powf(1.0f / r_pos, lambda - 1.0f));
 
     uij += 1.0f / temp;
 }
 
 __global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
-int num_part, float box_l, float ener)
+                          int num_part, float box_l, float ener)
 {
     // Parámetros
     float rc = box_l / 2.0f;
@@ -65,10 +65,11 @@ int num_part, float box_l, float ener)
     {
         for (j = 0; j < num_part; j++)
         {
-            if (i == j) continue;
+            if (i == j)
+                continue;
             // Siempre inicializar en cero
-            uij = 0.0f;  
-            fij = 0.0f;  
+            uij = 0.0f;
+            fij = 0.0f;
 
             // Contribucion de pares
             xij = x[j] - x[i];
@@ -76,27 +77,29 @@ int num_part, float box_l, float ener)
             zij = z[j] - z[i];
 
             // Condiciones de frontera
-            xij -= (box_l * roundf(xij/box_l));
-            yij -= (box_l * roundf(yij/box_l));
-            zij -= (box_l * roundf(zij/box_l));
+            xij -= (box_l * roundf(xij / box_l));
+            yij -= (box_l * roundf(yij / box_l));
+            zij -= (box_l * roundf(zij / box_l));
 
-            rij = sqrtf(xij*xij + yij*yij + zij*zij);
+            rij = sqrtf(xij * xij + yij * yij + zij * zij);
 
             if (rij < rc)
             {
                 // Siempre se calcula la fuerza
                 if (rij < b_param)
                 {
-                    hardsphere(rij, uij);
-                    fij = lambda*powf(1.0f/rij, lambda+1.0f) - (lambda-1.0f)*powf(1.0f/rij, lambda);
-                    fij *= (a_param/temp);
+                    // hardsphere(rij, uij);
+                    uij = (a_param / temp) * (powf(1.0f / r_pos, lambda) - powf(1.0f / r_pos, lambda - 1.0f));
+                    uij += 1.0f / temp;
+                    fij = lambda * powf(1.0f / rij, lambda + 1.0f) - (lambda - 1.0f) * powf(1.0f / rij, lambda);
+                    fij *= (a_param / temp);
                 }
 
                 // Actualizar los valores de las fuerzas
-                fx[i] += (fij*xij)/rij;
-                fy[i] += (fij*yij)/rij;
-                fz[i] += (fij*zij)/rij;
-                
+                fx[i] += (fij * xij) / rij;
+                fy[i] += (fij * yij) / rij;
+                fz[i] += (fij * zij) / rij;
+
                 // fx[j] -= (fij*xij)/rij;
                 // fy[j] -= (fij*yij)/rij;
                 // fz[j] -= (fij*zij)/rij;
@@ -147,33 +150,33 @@ int num_part, float box_l, float ener)
 //     }
 // }
 
-__global__ void position(float* x, float* y, float* z, float* fx, float* fy, float* fz, float dtt,
-float box_l, int num_part, int pbc, float *randvec)
+__global__ void position(float *x, float *y, float *z, float *fx, float *fy, float *fz, float dtt,
+                         float box_l, int num_part, int pbc, float *randvecx, float *randvecy, float *randvecz);
 {
     // Inicializar algunas variables
     float dx = 0.0f;
     float dy = 0.0f;
     float dz = 0.0f;
-    float sigma = sqrtf(2.0*dtt);
+    float sigma = sqrtf(2.0 * dtt);
     int i = 0;
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
     int stride = blockDim.x * gridDim.x;
 
-    for (i = idx; i < num_part; i+=stride)
+    for (i = idx; i < num_part; i += stride)
     {
-        dx = sigma * randvec[i];
-        dy = sigma * randvec[i+1];
-        dz = sigma * randvec[i+2];
+        dx = sigma * randvecx[i];
+        dy = sigma * randvecy[i];
+        dz = sigma * randvecz[i];
 
-        x[i] += fx[i]*dtt + dx;
-        y[i] += fy[i]*dtt + dy;
-        z[i] += fz[i]*dtt + dz;
+        x[i] += fx[i] * dtt + dx;
+        y[i] += fy[i] * dtt + dy;
+        z[i] += fz[i] * dtt + dz;
 
         if (pbc == 1)
         {
-            x[i] -= (box_l * round(x[i]/box_l));
-            y[i] -= (box_l * round(y[i]/box_l));
-            z[i] -= (box_l * round(z[i]/box_l));
+            x[i] -= (box_l * round(x[i] / box_l));
+            y[i] -= (box_l * round(y[i] / box_l));
+            z[i] -= (box_l * round(z[i] / box_l));
         }
     }
 }
@@ -185,8 +188,8 @@ float box_l, int num_part, int pbc, float *randvec)
 //     float dif = 0.0f;
 //     int i = 0, j = 0, k = 0;
 //     float dx = 0.0f, dy = 0.0f, dz = 0.0f, aux = 0.0f;
-    
-//     // #pragma omp parallel for 
+
+//     // #pragma omp parallel for
 //     // Mean-squared displacement
 //     for (i = 0; i < nprom; i++)
 //     {
