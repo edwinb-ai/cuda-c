@@ -36,21 +36,13 @@ int main(int argc, char const *argv[])
     printf("Radio de corte: %f\n", radio_c);
 
     // ! RNG variables
-    curandGenerator_t genx;
-    curandCreateGenerator(&genx, CURAND_RNG_PSEUDO_DEFAULT);
-    curandSetPseudoRandomGeneratorSeed(genx, seed);
+    curandGenerator_t gen;
+    curandCreateGenerator(&gen, CURAND_RNG_PSEUDO_DEFAULT);
+    curandSetPseudoRandomGeneratorSeed(gen, seed);
     float *rngvec_devx;
     cudaMallocManaged(&rngvec_devx, n_part * sizeof(float));
-
-    curandGenerator_t geny;
-    curandCreateGenerator(&geny, CURAND_RNG_PSEUDO_DEFAULT);
-    curandSetPseudoRandomGeneratorSeed(geny, seed+1);
     float *rngvec_devy;
     cudaMallocManaged(&rngvec_devy, n_part * sizeof(float));
-
-    curandGenerator_t genz;
-    curandCreateGenerator(&genz, CURAND_RNG_PSEUDO_DEFAULT);
-    curandSetPseudoRandomGeneratorSeed(genz, seed+2);
     float *rngvec_devz;
     cudaMallocManaged(&rngvec_devz, n_part * sizeof(float));
 
@@ -122,9 +114,9 @@ int main(int argc, char const *argv[])
     for (size_t i = 0; i < nct; i++)
     {
         // * Crear números aleatorios
-        curandGenerateNormal(genx, rngvec_devx, n_part, 0.0f, 1.0f);
-        curandGenerateNormal(geny, rngvec_devy, n_part, 0.0f, 1.0f);
-        curandGenerateNormal(genz, rngvec_devz, n_part, 0.0f, 1.0f);
+        curandGenerateNormal(gen, rngvec_devx, n_part, 0.0f, 1.0f);
+        curandGenerateNormal(gen, rngvec_devy, n_part, 0.0f, 1.0f);
+        curandGenerateNormal(gen, rngvec_devz, n_part, 0.0f, 1.0f);
         position<<<bloques, hilos>>>(x, y, z, fx, fy, fz, d_tiempo, l_caja, n_part, 1, rngvec_devx, rngvec_devy, rngvec_devz);
         cudaDeviceSynchronize();
         rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener);
