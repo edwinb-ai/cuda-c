@@ -53,13 +53,16 @@ int num_part, float box_l, float ener)
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
     int stride = blockDim.x * gridDim.x;
 
+    // Inicializar arreglos para la fuerza
     for (i = idx; i < num_part; i += stride)
     {
-        // Inicializar arreglos para la fuerza
-        fx[idx] = 0.0f;
-        fy[idx] = 0.0f;
-        fz[idx] = 0.0f;
+        fx[i] = 0.0f;
+        fy[i] = 0.0f;
+        fz[i] = 0.0f;
+    }
 
+    for (i = idx; i < num_part; i += stride)
+    {
         for (j = 0; j < num_part; j++)
         {
             // Siempre inicializar en cero
