@@ -36,17 +36,23 @@ int main(int argc, char const *argv[])
     printf("Radio de corte: %f\n", radio_c);
 
     // ! RNG variables
-    curandGenerator_t gen;
+    curandGenerator_t genx;
+    curandCreateGenerator(&genx, CURAND_RNG_PSEUDO_DEFAULT);
+    curandSetPseudoRandomGeneratorSeed(genx, seed);
     float *rngvec_devx;
     cudaMallocManaged(&rngvec_devx, n_part * sizeof(float));
+
+    curandGenerator_t geny;
+    curandCreateGenerator(&geny, CURAND_RNG_PSEUDO_DEFAULT);
+    curandSetPseudoRandomGeneratorSeed(geny, seed+1);
     float *rngvec_devy;
     cudaMallocManaged(&rngvec_devy, n_part * sizeof(float));
+
+    curandGenerator_t genz;
+    curandCreateGenerator(&genz, CURAND_RNG_PSEUDO_DEFAULT);
+    curandSetPseudoRandomGeneratorSeed(genz, seed+2);
     float *rngvec_devz;
     cudaMallocManaged(&rngvec_devz, n_part * sizeof(float));
-    // ! Create pseudo-random number generator
-    curandCreateGenerator(&gen, CURAND_RNG_PSEUDO_DEFAULT);
-    // ! Set seed
-    curandSetPseudoRandomGeneratorSeed(gen, seed);
 
     // Inicializar los arreglos
     float *x;
@@ -116,9 +122,9 @@ int main(int argc, char const *argv[])
     for (size_t i = 0; i < nct; i++)
     {
         // * Crear números aleatorios
-        curandGenerateNormal(gen, rngvec_devx, n_part, 0.0f, 1.0f);
-        curandGenerateNormal(gen, rngvec_devy, n_part, 0.0f, 1.0f);
-        curandGenerateNormal(gen, rngvec_devz, n_part, 0.0f, 1.0f);
+        curandGenerateNormal(genx, rngvec_devx, n_part, 0.0f, 1.0f);
+        curandGenerateNormal(geny, rngvec_devy, n_part, 0.0f, 1.0f);
+        curandGenerateNormal(genz, rngvec_devz, n_part, 0.0f, 1.0f);
         position<<<bloques, hilos>>>(x, y, z, fx, fy, fz, d_tiempo, l_caja, n_part, 1, rngvec_devx, rngvec_devy, rngvec_devz);
         cudaDeviceSynchronize();
         rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener);
@@ -132,7 +138,7 @@ int main(int argc, char const *argv[])
                 printf("FORCES\n");
                 printf("%.10f %.10f %.10f\n", fx[i], fy[i], fz[i]);
                 printf("RNG\n");
-                printf("%.10f %.10f %.10f\n", rngvec_dev[i], rngvec_dev[i+1], rngvec_dev[i+2]);
+                printf("%.10f %.10f %.10f\n", rngvec_devx[i], rngvec_devy[i], rngvec_devz[i]);
             }
         }
         if (i % 100 == 0)
