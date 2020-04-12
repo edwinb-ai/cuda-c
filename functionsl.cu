@@ -51,7 +51,7 @@ int num_part, float box_l, float ener)
     float uij = 0.0f;
     int i = 0, j = 0;
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
-    // int stride = blockDim.x * gridDim.x;
+    int stride = blockDim.x * gridDim.x;
 
     // Inicializar arreglos para la fuerza
     for (i = idx; i < num_part; i+=stride)
