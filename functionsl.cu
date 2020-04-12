@@ -89,13 +89,13 @@ int num_part, float box_l, float ener)
                 }
 
                 // Actualizar los valores de las fuerzas
-                fx[j] += (fij*xij)/rij;
-                fy[j] += (fij*yij)/rij;
-                fz[j] += (fij*zij)/rij;
+                fx[i] += (fij*xij)/rij;
+                fy[i] += (fij*yij)/rij;
+                fz[i] += (fij*zij)/rij;
                 
-                fx[i] -= (fij*xij)/rij;
-                fy[i] -= (fij*yij)/rij;
-                fz[i] -= (fij*zij)/rij;
+                fx[j] -= (fij*xij)/rij;
+                fy[j] -= (fij*yij)/rij;
+                fz[j] -= (fij*zij)/rij;
                 ener = ener + uij;
                 // printf("%f\n", ener);
             }
