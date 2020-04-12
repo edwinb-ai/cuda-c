@@ -42,34 +42,34 @@ __global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, fl
 int num_part, float box_l, float ener)
 {
     // Parámetros
-    float rc = box_l/2.0f;
+    float rc = box_l / 2.0f;
     // float d_r = rc / nm;
 
     // Inicializar algunas variables de la posicion
     float xij = 0.0f, yij = 0.0f, zij = 0.0f, rij = 0.0f;
     float fij = 0.0f;
     float uij = 0.0f;
-    int i = 0;
+    int i = 0, j = 0;
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
-    // int stride = blockDim.x * gridDim.x;
+    int stride = blockDim.x * gridDim.x;
 
-    if (idx < num_part)
+    for (i = idx; i < num_part; i += stride)
     {
         // Inicializar arreglos para la fuerza
         fx[idx] = 0.0f;
         fy[idx] = 0.0f;
         fz[idx] = 0.0f;
 
-        for (i = idx+1; i < num_part; i++)
+        for (j = 0; j < num_part; j++)
         {
             // Siempre inicializar en cero
             uij = 0.0f;  
             fij = 0.0f;  
 
             // Contribucion de pares
-            xij = x[idx] - x[i];
-            yij = y[idx] - y[i];
-            zij = z[idx] - z[i];
+            xij = x[j] - x[i];
+            yij = y[j] - y[i];
+            zij = z[j] - z[i];
 
             // Condiciones de frontera
             xij -= (box_l * roundf(xij/box_l));
@@ -89,9 +89,9 @@ int num_part, float box_l, float ener)
                 }
 
                 // Actualizar los valores de las fuerzas
-                fx[idx] += (fij*xij)/rij;
-                fy[idx] += (fij*yij)/rij;
-                fz[idx] += (fij*zij)/rij;
+                fx[j] += (fij*xij)/rij;
+                fy[j] += (fij*yij)/rij;
+                fz[j] += (fij*zij)/rij;
                 
                 fx[i] -= (fij*xij)/rij;
                 fy[i] -= (fij*yij)/rij;
