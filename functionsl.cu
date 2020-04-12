@@ -84,15 +84,10 @@ int num_part, float box_l, float ener)
                 if (rij < b_param)
                 {
                     hardsphere(rij, uij);
-                    fij = lambda*powf(1.0/rij, lambda+1.0) - (lambda-1.0)*powf(1.0/rij, lambda);
+                    fij = lambda*powf(1.0f/rij, lambda+1.0f) - (lambda-1.0f)*powf(1.0f/rij, lambda);
                     fij *= (a_param/temp);
-                    // printf("%f\n", uij);
                 }
-                else
-                {
-                    uij = 0.0f;
-                    fij = 0.0f;
-                }
+
                 // Actualizar los valores de las fuerzas
                 fx[idx] += (fij*xij)/rij;
                 fy[idx] += (fij*yij)/rij;

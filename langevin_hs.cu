@@ -123,6 +123,8 @@ int main(int argc, char const *argv[])
             for (int i = 0; i < n_part; i++)
             {
                 printf("%.10f %.10f %.10f\n", x[i], y[i], z[i]);
+                printf("FORCES\n");
+                printf("%.10f %.10f %.10f\n", fx[i], fy[i], fz[i]);
             }
         }
         if (i % 100 == 0)
