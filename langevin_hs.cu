@@ -124,7 +124,7 @@ int main(int argc, char const *argv[])
                 printf("FORCES\n");
                 printf("%.10f %.10f %.10f\n", fx[i], fy[i], fz[i]);
                 printf("RNG\n");
-                printf("%.10f %.10f %.10f\n", rngvec_dev[i], rngvec_dev[i+1], rngvec_dev[i+2]);
+                printf("%.10f %.10f %.10f\n", rngvec_dev[3*i], rngvec_dev[(3*i)+1], rngvec_dev[(3*i)+2]);
             }
         }
         if (i % 100 == 0)

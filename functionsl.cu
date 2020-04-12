@@ -164,9 +164,9 @@ __global__ void position(float *x, float *y, float *z, float *fx, float *fy, flo
 
     for (i = idx; i < num_part; i += stride)
     {
-        dx = sigma * randvec[i];
-        dy = sigma * randvec[i+1];
-        dz = sigma * randvec[i+2];
+        dx = sigma * randvec[3*i];
+        dy = sigma * randvec[(3*i)+1];
+        dz = sigma * randvec[(3*i)+2];
 
         x[i] += fx[i] * dtt + dx;
         y[i] += fy[i] * dtt + dy;
