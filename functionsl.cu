@@ -43,7 +43,7 @@ int num_part, float box_l, float ener)
 {
     // Parámetros
     float rc = box_l/2.0f;
-    float d_r = rc / nm;
+    // float d_r = rc / nm;
 
     // Inicializar algunas variables de la posicion
     float xij = 0.0f, yij = 0.0f, zij = 0.0f, rij = 0.0f;
@@ -51,7 +51,7 @@ int num_part, float box_l, float ener)
     float uij = 0.0f;
     int i = 0;
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
-    int stride = blockDim.x * gridDim.x;
+    // int stride = blockDim.x * gridDim.x;
 
     if (idx < num_part)
     {
