@@ -99,13 +99,13 @@ __global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, fl
                 }
 
                 // Actualizar los valores de las fuerzas
-                fx[j] += (fij * xij) / rij;
-                fy[j] += (fij * yij) / rij;
-                fz[j] += (fij * zij) / rij;
+                atomicAdd(&fx[j], (fij * xij) / rij);
+                atomicAdd(&fy[j], (fij * yij) / rij);
+                atomicAdd(&fz[j], (fij * zij) / rij);
 
-                fx[i] += (fij * xij) / rij;
-                fy[i] += (fij * yij) / rij;
-                fz[i] += (fij * zij) / rij;
+                atomicAdd(&fx[i], -(fij * xij) / rij);
+                atomicAdd(&fy[i], -(fij * yij) / rij);
+                atomicAdd(&fz[i], -(fij * zij) / rij);
                 ener = ener + uij;
                 // printf("%f\n", ener);
             }
