@@ -61,9 +61,13 @@ __global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, fl
         fz[i] = 0.0f;
     }
 
-    for (i = idx; i < num_part; i += stride)
+    if (i < num_part)
     {
-        for (j = 0; j < num_part; j++)
+        fx[i] = 0.0f;
+        fy[i] = 0.0f;
+        fz[i] = 0.0f;
+        
+        for (j = i+1; j < num_part; j++)
         {
             if (i == j)
                 continue;
