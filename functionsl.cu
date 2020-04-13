@@ -92,6 +92,11 @@ __global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, fl
                     fij = lambda * powf(1.0f / rij, lambda + 1.0f) - (lambda - 1.0f) * powf(1.0f / rij, lambda);
                     fij *= (a_param / temp);
                 }
+                else
+                {
+                    uij = 0.0f;
+                    fij = 0.0f;
+                }
 
                 // Actualizar los valores de las fuerzas
                 fx[i] += (fij * xij) / rij;
