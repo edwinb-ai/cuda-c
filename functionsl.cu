@@ -94,9 +94,9 @@ __global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, fl
                 }
 
                 // Actualizar los valores de las fuerzas
-                fx[i] += (fij * xij) / rij;
-                fy[i] += (fij * yij) / rij;
-                fz[i] += (fij * zij) / rij;
+                fx[i] -= (fij * xij) / rij;
+                fy[i] -= (fij * yij) / rij;
+                fz[i] -= (fij * zij) / rij;
 
                 // fx[i] -= (fij * xij) / rij;
                 // fy[i] -= (fij * yij) / rij;
