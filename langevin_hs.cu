@@ -40,7 +40,8 @@ int main(int argc, char const *argv[])
     curandCreateGenerator(&gen, CURAND_RNG_PSEUDO_DEFAULT);
     curandSetPseudoRandomGeneratorSeed(gen, seed);
     float *rngvec_dev;
-    cudaMallocManaged(&rngvec_dev, 3 * n_part * sizeof(float));
+    int rng_size = (int) (3 * n_part);
+    cudaMallocManaged(&rngvec_dev, rng_size * sizeof(float));
 
     // Inicializar los arreglos
     float *x;
@@ -110,7 +111,7 @@ int main(int argc, char const *argv[])
     for (size_t i = 0; i < nct; i++)
     {
         // * Crear números aleatorios
-        curandGenerateNormal(gen, rngvec_dev, 3 * n_part, 0.0f, 1.0f);
+        curandGenerateNormal(gen, rngvec_dev, rng_size, 0.0f, 1.0f);
         position<<<bloques, hilos>>>(x, y, z, fx, fy, fz, d_tiempo, l_caja, n_part, 1, rngvec_dev);
         cudaDeviceSynchronize();
         rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener);
