@@ -72,9 +72,9 @@ __global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, fl
             fij = 0.0f;
 
             // Contribucion de pares
-            xij = x[j] - x[i];
-            yij = y[j] - y[i];
-            zij = z[j] - z[i];
+            xij = x[i] - x[j];
+            yij = y[i] - y[j];
+            zij = z[i] - z[j];
 
             // Condiciones de frontera
             xij -= (box_l * roundf(xij / box_l));
@@ -88,9 +88,7 @@ __global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, fl
                 // Siempre se calcula la fuerza
                 if (rij < b_param)
                 {
-                    // hardsphere(rij, uij);
-                    uij = (a_param / temp) * (powf(1.0f / r_pos, lambda) - powf(1.0f / r_pos, lambda - 1.0f));
-                    uij += 1.0f / temp;
+                    hardsphere(rij, uij);
                     fij = lambda * powf(1.0f / rij, lambda + 1.0f) - (lambda - 1.0f) * powf(1.0f / rij, lambda);
                     fij *= (a_param / temp);
                 }
