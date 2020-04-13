@@ -149,7 +149,7 @@ __global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, fl
 // }
 
 __global__ void position(float *x, float *y, float *z, float *fx, float *fy, float *fz, float dtt,
-                         float box_l, int num_part, int pbc, float *randvec);
+                         float box_l, int num_part, int pbc, float *randvec)
 {
     // Inicializar algunas variables
     float dx = 0.0f;
