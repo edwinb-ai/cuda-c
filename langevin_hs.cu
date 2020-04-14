@@ -123,8 +123,7 @@ int main(int argc, char const *argv[])
         printf("Energy: %f\n", ener);
         if (i % 1000 == 0)
         {
-            for (int i = 0; i < n_part; i++)
-                total_ener += ener[i];
+            for (int k = 0; k < n_part; k++) total_ener += ener[k];
             printf("%d %.10f Thermal\n", i, ener / ((float)(n_part)));
             // for (int k = 0; k < n_part; k++)
             // {
