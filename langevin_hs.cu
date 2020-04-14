@@ -102,7 +102,7 @@ int main(int argc, char const *argv[])
 
     // Verificar que la energía es cero
     rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener);
-    cudaDeviceSynchronize();
+    cudaThreadSynchronize();
     float total_ener = 0.0f;
     for (int i = 0; i < n_part; i++)
         total_ener += ener[i];
