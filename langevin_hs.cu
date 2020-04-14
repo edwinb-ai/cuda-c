@@ -116,6 +116,7 @@ int main(int argc, char const *argv[])
         cudaDeviceSynchronize();
         rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener);
         cudaDeviceSynchronize();
+        printf("Energy: %f\n", ener);
         if (i % 1000 == 0)
         {
             printf("%d %.10f Thermal\n", i, ener / ((float)(n_part)));
