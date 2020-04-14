@@ -120,11 +120,16 @@ int main(int argc, char const *argv[])
         cudaThreadSynchronize();
         rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener);
         cudaThreadSynchronize();
-        printf("Energy: %f\n", ener);
+        
+        // ! Calcular la energía total
+        total_ener = 0.0f;
+        for (int k = 0; k < n_part; k++) total_ener += ener[k];
+
+
         if (i % 1000 == 0)
         {
-            for (int k = 0; k < n_part; k++) total_ener += ener[k];
-            printf("%d %.10f Thermal\n", i, ener / ((float)(n_part)));
+            
+            printf("%d %.10f Thermal\n", i, total_ener / ((float)(n_part)));
             // for (int k = 0; k < n_part; k++)
             // {
             //     printf("%.10f %.10f %.10f\n", x[k], y[k], z[k]);
@@ -134,7 +139,7 @@ int main(int argc, char const *argv[])
         }
         if (i % 100 == 0)
         {
-            fprintf(f_ener, "%d %.10f\n", i, ener / ((float)(n_part)));
+            fprintf(f_ener, "%d %.10f\n", i, total_ener / ((float)(n_part)));
         }
     }
     fclose(f_ener);
