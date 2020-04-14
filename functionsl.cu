@@ -73,7 +73,7 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
             // Siempre inicializar en cero
             uij = 0.0f;
             fij = 0.0f;
-            
+
             // Contribucion de pares
             xij = x[j] - x[i];
             yij = y[j] - y[i];
@@ -120,45 +120,44 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
     }
 }
 
-// void gr(float* x, float* y, float* z, float* g, int num_part, float box_l)
-// {
-//     // Parámetros
-//     float rc = box_l/2.0;
-//     float d_r = rc / nm;
+void gr(float* x, float* y, float* z, float* g, int num_part, float box_l)
+{
+    // Parámetros
+    float rc = box_l * 0.5f;
+    float d_r = rc / nm;
 
-//     int nbin = 0;
-//     int i = 0, j = 0;
-//     float xij = 0.0f, yij = 0.0f, zij = 0.0f, rij = 0.0f;
+    int nbin = 0;
+    int i = 0, j = 0;
+    float xij = 0.0f, yij = 0.0f, zij = 0.0f, rij = 0.0f;
 
-//     // #pragma omp parallel for num_threads(30) default(shared) private(xij,yij,zij,i,j,rij)
-//     for (i = 0; i < num_part; i++)
-//     {
-//         for (j = i+1; j < num_part-1; j++)
-//         {
+    for (i = 0; i < num_part; i++)
+    {
+        for (j = i+1; j < num_part-1; j++)
+        {
 
-//             // Contribucion de pares
-//             xij = x[j] - x[i];
-//             yij = y[j] - y[i];
-//             zij = z[j] - z[i];
+            // Contribucion de pares
+            xij = x[j] - x[i];
+            yij = y[j] - y[i];
+            zij = z[j] - z[i];
 
-//             // Condiciones de frontera
-//             xij -= (box_l * round(xij/box_l));
-//             yij -= (box_l * round(yij/box_l));
-//             zij -= (box_l * round(zij/box_l));
+            // Condiciones de frontera
+            xij -= (box_l * round(xij/box_l));
+            yij -= (box_l * round(yij/box_l));
+            zij -= (box_l * round(zij/box_l));
 
-//             rij = sqrtf(xij*xij + yij*yij + zij*zij);
+            rij = sqrtf(xij*xij + yij*yij + zij*zij);
 
-//             if (rij < rc)
-//             {
-//                 nbin = (int)(rij/d_r) + 1;
-//                 if (nbin <= nm)
-//                 {
-//                     g[nbin] += 2.0;
-//                 }
-//             }
-//         }
-//     }
-// }
+            if (rij < rc)
+            {
+                nbin = (int)(rij/d_r) + 1;
+                if (nbin <= nm)
+                {
+                    g[nbin] += 2.0f;
+                }
+            }
+        }
+    }
+}
 
 __global__ void position(float *x, float *y, float *z, float *fx, float *fy, float *fz, float dtt,
                          float box_l, int num_part, int pbc, float *randvec)

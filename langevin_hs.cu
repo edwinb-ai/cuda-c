@@ -56,14 +56,19 @@ int main(int argc, char const *argv[])
     cudaMallocManaged(&fy, n_part * sizeof(float));
     float *fz;
     cudaMallocManaged(&fz, n_part * sizeof(float));
-    // float *g = calloc(nm, sizeof(float));
-    // float *t = calloc(mt_n, sizeof(float));
-    // float *h = calloc(nm, sizeof(float));
-    // float *wt = calloc(mt_n, sizeof(float));
+    float *g;
+    cudaMallocManaged(&g, nm * sizeof(float));
+    float *t;
+    cudaMallocManaged(&t, mt_n * sizeof(float));
+    float *wt;
+    cudaMallocManaged(&wt, mt_n * sizeof(float));
 
-    // float *cfx = calloc(mt_n * n_part, sizeof(float));
-    // float *cfy = calloc(mt_n * n_part, sizeof(float));
-    // float *cfz = calloc(mt_n * n_part, sizeof(float));
+    float *cfx;
+    cudaMallocManaged(&cfx, mt_n * n_part * sizeof(float));
+    float *cfy;
+    cudaMallocManaged(&cfy, mt_n * n_part * sizeof(float));
+    float *cfz;
+    cudaMallocManaged(&cfz, mt_n * n_part * sizeof(float));
     float *ener;
     cudaMallocManaged(&ener, n_part * sizeof(float));
 
@@ -125,18 +130,10 @@ int main(int argc, char const *argv[])
         total_ener = 0.0f;
         for (int k = 0; k < n_part; k++) total_ener += ener[k];
 
-
         if (i % 1000 == 0)
         {
             
             printf("%d %.10f Thermal\n", i, total_ener / ((float)(n_part)));
-            // printf("%d %.10f Thermal\n", i, total_ener);
-            // for (int k = 0; k < n_part; k++)
-            // {
-            //     printf("%.10f %.10f %.10f\n", x[k], y[k], z[k]);
-            //     printf("FORCES\n");
-            //     printf("%.10f %.10f %.10f\n", fx[k], fy[k], fz[k]);
-            // }
         }
         if (i % 100 == 0)
         {
@@ -145,55 +142,63 @@ int main(int argc, char const *argv[])
     }
     fclose(f_ener);
 
-    // // Guardar la configuración final después de termalizar
-    // for (int i = 0; i < n_part; i++)
-    // {
-    //     fprintf(f_final, "%.10f %.10f %.10f %.10f %.10f %.10f\n", x[i], y[i], z[i], fx[i], fy[i], fz[i]);
-    // }
-    // fclose(f_final);
+    // Guardar la configuración final después de termalizar
+    for (int i = 0; i < n_part; i++)
+    {
+        fprintf(f_final, "%.10f %.10f %.10f %.10f %.10f %.10f\n", x[i], y[i], z[i], fx[i], fy[i], fz[i]);
+    }
+    fclose(f_final);
 
-    // // Calcular la g(r)
-    // int nprom = 0;
-    // for (int i = 0; i < ncp; i++)
-    // {
-    //     position(x, y, z, fx, fy, fz, d_tiempo, l_caja, n_part, 0);
-    //     ener = rdf_force(x, y, z, fx, fy, fz, n_part, l_caja);
-    //     if (i % 1000 == 0)
-    //     {
-    //         printf("%d %.10f Average\n", i, ener / ((float)(n_part)));
-    //     }
-    //     if (i % 10 == 0)
-    //     // if (i%n_part == 0) // Promediar cada numero total de particulas
-    //     {
-    //         t[nprom] = d_tiempo * 10.0 * nprom;
-    //         for (int j = 0; j < n_part; j++)
-    //         {
-    //             cfx[nprom * mp + j] = x[j];
-    //             cfy[nprom * mp + j] = y[j];
-    //             cfz[nprom * mp + j] = z[j];
-    //         }
-    //         nprom++;
-    //         gr(x, y, z, g, n_part, l_caja);
-    //     }
-    // }
+    // Calcular la g(r)
+    int nprom = 0;
+    for (int i = 0; i < ncp; i++)
+    {
+        // * Crear números aleatorios
+        curandGenerateNormal(gen, rngvec_dev, rng_size, 0.0f, 1.0f);
+        position<<<bloques, hilos>>>(x, y, z, fx, fy, fz, d_tiempo, l_caja, n_part, 0, rngvec_dev);
+        cudaDeviceSynchronize();
+        rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener);
+        cudaDeviceSynchronize();
 
-    // printf("%.10f %d\n", dr, nprom);
+        // ! Calcular la energía total
+        total_ener = 0.0f;
+        for (int k = 0; k < n_part; k++) total_ener += ener[k];
 
-    // f_gr = fopen(argv[7], "w");
-    // float *r = calloc(nm, sizeof(float));
-    // float dv = 0.0;
-    // float hraux = 0.0, fnorm = 0.0;
+        if (i % 1000 == 0)
+        {
+            printf("%d %.10f Average\n", i, total_ener / ((float)(n_part)));
+        }
+        if (i % 10 == 0)
+        // if (i%n_part == 0) // Promediar cada numero total de particulas
+        {
+            t[nprom] = d_tiempo * 10.0 * nprom;
+            for (int j = 0; j < n_part; j++)
+            {
+                cfx[nprom * mp + j] = x[j];
+                cfy[nprom * mp + j] = y[j];
+                cfz[nprom * mp + j] = z[j];
+            }
+            nprom++;
+            gr(x, y, z, g, n_part, l_caja);
+        }
+    }
 
-    // for (int i = 1; i < nm; i++)
-    // {
-    //     r[i] = (i - 1) * dr;
-    //     dv = 4.0 * pi * r[i] * r[i] * dr;
-    //     fnorm = powf(l_caja, 3.0) / (powf(n_part, 2.0) * nprom * dv);
-    //     g[i] = g[i] * fnorm;
-    //     h[i] = g[i] - 1.0;
-    //     fprintf(f_gr, "%.10f %.10f %.10f\n", r[i], g[i], h[i]);
-    // }
-    // fclose(f_gr);
+    printf("%.10f %d\n", dr, nprom);
+
+    f_gr = fopen(argv[7], "w");
+    float *r = calloc(nm, sizeof(float));
+    float dv = 0.0;
+    float hraux = 0.0, fnorm = 0.0;
+
+    for (int i = 1; i < nm; i++)
+    {
+        r[i] = (i - 1) * dr;
+        dv = 4.0 * pi * r[i] * r[i] * dr;
+        fnorm = powf(l_caja, 3.0) / (powf(n_part, 2.0) * nprom * dv);
+        g[i] = g[i] * fnorm;
+        fprintf(f_gr, "%.10f %.10f %.10f\n", r[i], g[i]);
+    }
+    fclose(f_gr);
 
     // // Mean-square displacement and intermediate scattering function
     // difusion(nprom, n_part, cfx, cfy, cfz, wt);
