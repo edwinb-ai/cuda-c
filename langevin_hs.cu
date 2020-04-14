@@ -74,6 +74,7 @@ int main(int argc, char const *argv[])
     cudaMallocManaged(&cfz, mt_n * n_part * sizeof(float));
     float *ener;
     cudaMallocManaged(&ener, n_part * sizeof(float));
+    float total_ener = 0.0f;
 
     // Asignar hilos y bloques
     int hilos = 256;
@@ -110,7 +111,7 @@ int main(int argc, char const *argv[])
         // Verificar que la energía es cero
         rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener);
         cudaDeviceSynchronize();
-        float total_ener = 0.0f;
+        total_ener = 0.0f;
         for (int i = 0; i < n_part; i++)
             total_ener += ener[i];
         printf("E/N: %.10f\n", total_ener / ((float)(n_part)));
