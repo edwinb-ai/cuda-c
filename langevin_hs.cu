@@ -10,7 +10,7 @@ int main(int argc, char const *argv[])
     FILE *wt_f;
 
     //  Numero de particulas
-    int n_part = 2048;
+    int n_part = 2197;
     //  Fracción de empaquetamiento
     float phi = atof(argv[1]);
     //  Densidad

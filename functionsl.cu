@@ -77,9 +77,9 @@ __global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, fl
             zij = z[i] - z[j];
 
             // Condiciones de frontera
-            xij -= (box_l * roundf(xij / box_l));
-            yij -= (box_l * roundf(yij / box_l));
-            zij -= (box_l * roundf(zij / box_l));
+            xij -= box_l * roundf(xij / box_l);
+            yij -= box_l * roundf(yij / box_l);
+            zij -= box_l * roundf(zij / box_l);
 
             rij = sqrtf(xij * xij + yij * yij + zij * zij);
 
@@ -99,13 +99,15 @@ __global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, fl
                 }
 
                 // Actualizar los valores de las fuerzas
-                // atomicAdd(&fx[i], (fij * xij) / rij);
-                // atomicAdd(&fy[i], (fij * yij) / rij);
-                // atomicAdd(&fz[i], (fij * zij) / rij);
-
                 atomicAdd(&fx[i], (fij * xij) / rij);
                 atomicAdd(&fy[i], (fij * yij) / rij);
                 atomicAdd(&fz[i], (fij * zij) / rij);
+
+                atomicAdd(&fx[j], -(fij * xij) / rij);
+                atomicAdd(&fy[j], -(fij * yij) / rij);
+                atomicAdd(&fz[j], -(fij * zij) / rij);
+                
+                // Actualizar los valores de la energía
                 ener = ener + uij;
                 // printf("%f\n", ener);
             }
