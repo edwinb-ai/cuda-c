@@ -103,9 +103,9 @@ __global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, fl
                 // atomicAdd(&fy[i], (fij * yij) / rij);
                 // atomicAdd(&fz[i], (fij * zij) / rij);
 
-                atomicAdd(&fx[j], 0.5f(fij * xij) / rij);
-                atomicAdd(&fy[j], 0.5f(fij * yij) / rij);
-                atomicAdd(&fz[j], 0.5f(fij * zij) / rij);
+                atomicAdd(&fx[j], 0.5f * (fij * xij) / rij);
+                atomicAdd(&fy[j], 0.5f * (fij * yij) / rij);
+                atomicAdd(&fz[j], 0.5f * (fij * zij) / rij);
                 ener = ener + uij;
                 // printf("%f\n", ener);
             }
