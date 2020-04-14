@@ -57,17 +57,15 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
     int stride = blockDim.x * gridDim.x;
 
-    // Inicializar arreglos para la fuerza
     for (i = idx; i < num_part; i += stride)
     {
+        // Inicializar valores
+        potential = 0.0f;
         fx[i] = 0.0f;
         fy[i] = 0.0f;
         fz[i] = 0.0f;
         ener[i] = 0.0f;
-    }
 
-    for (i = idx; i < num_part; i += stride)
-    {
         for (j = 0; j < num_part; j++)
         {
             if (i == j)
@@ -75,7 +73,7 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
             // Siempre inicializar en cero
             uij = 0.0f;
             fij = 0.0f;
-
+            
             // Contribucion de pares
             xij = x[j] - x[i];
             yij = y[j] - y[i];
