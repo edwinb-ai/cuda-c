@@ -57,7 +57,7 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
     int stride = blockDim.x * gridDim.x;
 
-    for (i = idx; i < num_part; i += stride)
+    for (i = idx; i < (num_part-1); i += stride)
     {
         // Inicializar valores
         potential = 0.0f;
@@ -75,14 +75,14 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
             fij = 0.0f;
 
             // Contribucion de pares
-            xij = x[j] - x[i];
-            yij = y[j] - y[i];
-            zij = z[j] - z[i];
+            xij = x[i] - x[j];
+            yij = y[i] - y[j];
+            zij = z[i] - z[j];
 
             // Condiciones de frontera
-            xij -= box_l * roundf(xij / box_l);
-            yij -= box_l * roundf(yij / box_l);
-            zij -= box_l * roundf(zij / box_l);
+            xij -= (box_l * roundf(xij / box_l));
+            yij -= (box_l * roundf(yij / box_l));
+            zij -= (box_l * roundf(zij / box_l));
 
             rij = sqrtf(xij * xij + yij * yij + zij * zij);
 
