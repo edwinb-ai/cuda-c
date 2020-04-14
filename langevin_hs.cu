@@ -4,7 +4,7 @@ int main(int argc, char const *argv[])
 {
     // Definir la GPU
     cudaSetDevice(0);
-    
+
     // Archivos para trabajar
     FILE *f_iniconf;
     FILE *f_gr;
@@ -43,7 +43,7 @@ int main(int argc, char const *argv[])
     curandCreateGenerator(&gen, CURAND_RNG_PSEUDO_DEFAULT);
     curandSetPseudoRandomGeneratorSeed(gen, seed);
     float *rngvec_dev;
-    int rng_size = (int) (3 * n_part);
+    int rng_size = (int)(3 * n_part);
     cudaMallocManaged(&rngvec_dev, rng_size * sizeof(float));
 
     // Inicializar los arreglos
@@ -128,14 +128,20 @@ int main(int argc, char const *argv[])
         cudaDeviceSynchronize();
         rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener);
         cudaDeviceSynchronize();
-        
+
         // ! Calcular la energía total
         total_ener = 0.0f;
-        for (int k = 0; k < n_part; k++) total_ener += ener[k];
+        for (int k = 0; k < n_part; k++)
+            total_ener += ener[k];
 
         if (i % 1000 == 0)
         {
-            
+            for (size_t k = 0; k < n_part; k++)
+            {
+                printf("%.10f %.10f %.10f\n", x[k], y[k], z[k]);
+                printf("FORCES\n");
+                printf("%.10f %.10f %.10f\n", fx[k], fy[k], fz[k]);
+            }
             printf("%d %.10f Thermal\n", i, total_ener / ((float)(n_part)));
         }
         if (i % 100 == 0)
@@ -166,7 +172,8 @@ int main(int argc, char const *argv[])
 
         // ! Calcular la energía total
         total_ener = 0.0f;
-        for (int k = 0; k < n_part; k++) total_ener += ener[k];
+        for (int k = 0; k < n_part; k++)
+            total_ener += ener[k];
 
         if (i % 1000 == 0)
         {
@@ -175,7 +182,7 @@ int main(int argc, char const *argv[])
         if (i % ncep == 0)
         // if (i%n_part == 0) // Promediar cada numero total de particulas
         {
-            t[nprom] = d_tiempo * (float)(ncep) * nprom;
+            t[nprom] = d_tiempo * (float)(ncep)*nprom;
             for (int j = 0; j < n_part; j++)
             {
                 cfx[nprom * mp + j] = x[j];

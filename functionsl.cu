@@ -94,7 +94,7 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
                     uij = (a_param / temp) * (powf(1.0f / rij, lambda) - powf(1.0f / rij, lambda - 1.0f));
                     fij = lambda * powf(1.0f / rij, lambda + 1.0f) - (lambda - 1.0f) * powf(1.0f / rij, lambda);
                     fij *= (a_param / temp);
-                    uij += 1.0f / temp;
+                    uij += (1.0f / temp);
                 }
                 else
                 {
@@ -103,13 +103,13 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
                 }
 
                 // Actualizar los valores de las fuerzas
-                atomicAdd(&fx[i], (fij * xij) / rij);
-                atomicAdd(&fy[i], (fij * yij) / rij);
-                atomicAdd(&fz[i], (fij * zij) / rij);
+                fx[i] += (fij * xij) / rij;
+                fy[i] += (fij * yij) / rij;
+                fz[i] += (fij * zij) / rij;
 
-                atomicAdd(&fx[j], -(fij * xij) / rij);
-                atomicAdd(&fy[j], -(fij * yij) / rij);
-                atomicAdd(&fz[j], -(fij * zij) / rij);
+                fx[j] -= (fij * xij) / rij;
+                fy[j] -= (fij * yij) / rij;
+                fz[j] -= (fij * zij) / rij;
 
                 // Actualizar los valores de la energía
                 potential += uij;
@@ -166,7 +166,7 @@ __global__ void position(float *x, float *y, float *z, float *fx, float *fy, flo
     float dx = 0.0f;
     float dy = 0.0f;
     float dz = 0.0f;
-    float sigma = sqrtf(2.0 * dtt);
+    float sigma = sqrtf(2.0f * dtt);
     int i = 0;
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
     int stride = blockDim.x * gridDim.x;
@@ -183,9 +183,9 @@ __global__ void position(float *x, float *y, float *z, float *fx, float *fy, flo
 
         if (pbc == 1)
         {
-            x[i] -= box_l * round(x[i] / box_l);
-            y[i] -= box_l * round(y[i] / box_l);
-            z[i] -= box_l * round(z[i] / box_l);
+            x[i] -= box_l * roundf(x[i] / box_l);
+            y[i] -= box_l * roundf(y[i] / box_l);
+            z[i] -= box_l * roundf(z[i] / box_l);
         }
     }
 }
