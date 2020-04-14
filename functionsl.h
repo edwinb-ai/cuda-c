@@ -12,9 +12,9 @@ static const float lambda = 50.0f;
 static const float a_param = 134.552662342f;
 static const float b_param = 1.0204081632f;
 static const float temp = 1.4737f;
-static const int mt_n = 300000;
-static const int mp = 2197;
-static const int nm = 2197;
+static const int mt_n = 100000;
+static const int mp = 4096;
+static const int nm = 4096;
 static const float pi = 3.14159265f;
 
 // Funciones generales del código

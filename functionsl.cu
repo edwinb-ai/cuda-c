@@ -31,18 +31,23 @@ void iniconf(float *x, float *y, float *z, float rho, float rc, int num_part)
     }
 }
 
-__device__ void hardsphere(float r_pos, float uij)
+__device__ 
+void hardsphere(float r_pos, float uij, float fij)
 {
     uij = (a_param / temp) * (powf(1.0f / r_pos, lambda) - powf(1.0f / r_pos, lambda - 1.0f));
+    fij = lambda * powf(1.0f / rij, lambda + 1.0f) - (lambda - 1.0f) * powf(1.0f / rij, lambda);
 
+    fij *= (a_param / temp);
     uij += 1.0f / temp;
 }
 
-__global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
+__global__ 
+void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
                           int num_part, float box_l, float ener)
 {
     // Parámetros
     float rc = box_l / 2.0f;
+    float rc2 = rc * rc;
     // float d_r = rc / nm;
 
     // Inicializar algunas variables de la posicion
@@ -81,16 +86,15 @@ __global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, fl
             yij -= box_l * roundf(yij / box_l);
             zij -= box_l * roundf(zij / box_l);
 
-            rij = sqrtf(xij * xij + yij * yij + zij * zij);
+            rij = xij * xij + yij * yij + zij * zij;
 
-            if (rij < rc)
+            if (rij < rc2)
             {
+                rij = sqrtf(rij);
                 // Siempre se calcula la fuerza
                 if (rij < b_param)
                 {
-                    hardsphere(rij, uij);
-                    fij = lambda * powf(1.0f / rij, lambda + 1.0f) - (lambda - 1.0f) * powf(1.0f / rij, lambda);
-                    fij *= (a_param / temp);
+                    hardsphere(rij, uij, fij);
                 }
                 else
                 {
