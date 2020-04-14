@@ -2,6 +2,9 @@
 
 int main(int argc, char const *argv[])
 {
+    // Definir la GPU
+    cudaSetDevice(0);
+    
     // Archivos para trabajar
     FILE *f_iniconf;
     FILE *f_gr;
