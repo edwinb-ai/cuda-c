@@ -35,7 +35,7 @@ __device__
 void hardsphere(float r_pos, float uij, float fij)
 {
     uij = (a_param / temp) * (powf(1.0f / r_pos, lambda) - powf(1.0f / r_pos, lambda - 1.0f));
-    fij = lambda * powf(1.0f / rij, lambda + 1.0f) - (lambda - 1.0f) * powf(1.0f / rij, lambda);
+    fij = lambda * powf(1.0f / r_pos, lambda + 1.0f) - (lambda - 1.0f) * powf(1.0f / r_pos, lambda);
 
     fij *= (a_param / temp);
     uij += 1.0f / temp;
