@@ -43,7 +43,7 @@ void hardsphere(float r_pos, float uij, float fij)
 
 __global__ 
 void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
-                          int num_part, float box_l, float ener)
+                          int num_part, float box_l, float *ener)
 {
     // Parámetros
     float rc = box_l * 0.5f;
@@ -53,6 +53,7 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
     float xij = 0.0f, yij = 0.0f, zij = 0.0f, rij = 0.0f;
     float fij = 0.0f;
     float uij = 0.0f;
+    float potential = 0.0f;
     int i = 0, j = 0;
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
     int stride = blockDim.x * gridDim.x;
@@ -110,10 +111,11 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
                 atomicAdd(&fz[j], -(fij * zij) / rij);
                 
                 // Actualizar los valores de la energía
-                atomicAdd(ener, ener + uij);
+                potential += uij;
                 // printf("%f\n", ener);
             }
         }
+    ener[i] = potential;
     }
 }
 

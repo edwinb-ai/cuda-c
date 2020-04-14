@@ -21,7 +21,7 @@ static const float pi = 3.14159265f;
 void iniconf(float *x, float *y, float *z, float rho, float t_caja, int num_part);
 
 __global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
-int num_part, float box_l, float ener);
+int num_part, float box_l, float *ener);
 
 __device__ void hardsphere(float r_pos, float uij);
 

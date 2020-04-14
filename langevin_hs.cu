@@ -64,7 +64,8 @@ int main(int argc, char const *argv[])
     // float *cfx = calloc(mt_n * n_part, sizeof(float));
     // float *cfy = calloc(mt_n * n_part, sizeof(float));
     // float *cfz = calloc(mt_n * n_part, sizeof(float));
-    float ener = 0.0;
+    float *ener;
+    cudaMallocManaged(&ener, n_part * sizeof(float));
 
     // Asignar hilos y bloques
     int hilos = 256;
@@ -102,7 +103,10 @@ int main(int argc, char const *argv[])
     // Verificar que la energía es cero
     rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener);
     cudaDeviceSynchronize();
-    printf("E/N: %.10f\n", ener / ((float)(n_part)));
+    float total_ener = 0.0f;
+    for (int i = 0; i < n_part; i++)
+        total_ener += ener[i];
+    printf("E/N: %.10f\n", total_ener / ((float)(n_part)));
 
     // Termalizar el sistema
     f_ener = fopen("energia.dat", "w");
@@ -113,12 +117,14 @@ int main(int argc, char const *argv[])
         // * Crear números aleatorios
         curandGenerateNormal(gen, rngvec_dev, rng_size, 0.0f, 1.0f);
         position<<<bloques, hilos>>>(x, y, z, fx, fy, fz, d_tiempo, l_caja, n_part, 1, rngvec_dev);
-        cudaDeviceSynchronize();
+        cudaThreadSynchronize();
         rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener);
-        cudaDeviceSynchronize();
+        cudaThreadSynchronize();
         printf("Energy: %f\n", ener);
         if (i % 1000 == 0)
         {
+            for (int i = 0; i < n_part; i++)
+                total_ener += ener[i];
             printf("%d %.10f Thermal\n", i, ener / ((float)(n_part)));
             // for (int k = 0; k < n_part; k++)
             // {
