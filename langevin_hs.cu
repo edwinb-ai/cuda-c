@@ -151,6 +151,7 @@ int main(int argc, char const *argv[])
 
     // Calcular la g(r)
     int nprom = 0;
+    int ncep = 10;
     for (int i = 0; i < ncp; i++)
     {
         // * Crear números aleatorios
@@ -168,10 +169,10 @@ int main(int argc, char const *argv[])
         {
             printf("%d %.10f Average\n", i, total_ener / ((float)(n_part)));
         }
-        if (i % 10 == 0)
+        if (i % ncep == 0)
         // if (i%n_part == 0) // Promediar cada numero total de particulas
         {
-            t[nprom] = d_tiempo * 10.0 * nprom;
+            t[nprom] = d_tiempo * (float)(ncep) * nprom;
             for (int j = 0; j < n_part; j++)
             {
                 cfx[nprom * mp + j] = x[j];
@@ -188,14 +189,14 @@ int main(int argc, char const *argv[])
     f_gr = fopen(argv[7], "w");
     float *r;
     cudaMallocManaged(&r, nm * sizeof(float));
-    float dv = 0.0;
-    float fnorm = 0.0;
+    float dv = 0.0f;
+    float fnorm = 0.0f;
 
     for (int i = 1; i < nm; i++)
     {
         r[i] = (i - 1) * dr;
-        dv = 4.0 * pi * r[i] * r[i] * dr;
-        fnorm = powf(l_caja, 3.0) / (powf(n_part, 2.0) * nprom * dv);
+        dv = 4.0f * pi * r[i] * r[i] * dr;
+        fnorm = powf(l_caja, 3.0f) / (powf(n_part, 2.0f) * nprom * dv);
         g[i] = g[i] * fnorm;
         fprintf(f_gr, "%.10f %.10f\n", r[i], g[i]);
     }
@@ -206,7 +207,7 @@ int main(int argc, char const *argv[])
     cudaDeviceSynchronize();
 
     wt_f = fopen("wt.dat", "w");
-    for (int i = 0; i < (ncp / 10); i++)
+    for (int i = 0; i < (ncp / ncep); i++)
     {
         fprintf(wt_f, "%.10f %.10f\n", t[i], wt[i]);
     }
