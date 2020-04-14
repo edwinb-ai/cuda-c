@@ -77,12 +77,12 @@ int main(int argc, char const *argv[])
         f_final = fopen("final_conf.dat", "r");
         for (int i = 0; i < n_part; i++)
         {
-            fscanf(f_final, "%lf", &x[i]);
-            fscanf(f_final, "%lf", &y[i]);
-            fscanf(f_final, "%lf", &z[i]);
-            fscanf(f_final, "%lf", &fx[i]);
-            fscanf(f_final, "%lf", &fy[i]);
-            fscanf(f_final, "%lf", &fz[i]);
+            fscanf(f_final, "%f", &x[i]);
+            fscanf(f_final, "%f", &y[i]);
+            fscanf(f_final, "%f", &z[i]);
+            fscanf(f_final, "%f", &fx[i]);
+            fscanf(f_final, "%f", &fy[i]);
+            fscanf(f_final, "%f", &fz[i]);
         }
         fclose(f_final);
     }
@@ -108,7 +108,7 @@ int main(int argc, char const *argv[])
     f_ener = fopen("energia.dat", "w");
     f_final = fopen("final_conf.dat", "w");
 
-    for (size_t i = 0; i < nct; i++)
+    for (int i = 0; i < nct; i++)
     {
         // * Crear números aleatorios
         curandGenerateNormal(gen, rngvec_dev, rng_size, 0.0f, 1.0f);

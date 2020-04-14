@@ -105,9 +105,9 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
                 fy[i] += (fij * yij) / rij;
                 fz[i] += (fij * zij) / rij;
 
-                fx[j] -= -(fij * xij) / rij;
-                fy[j] -= -(fij * yij) / rij;
-                fz[j] -= -(fij * zij) / rij;
+                fx[j] -= (fij * xij) / rij;
+                fy[j] -= (fij * yij) / rij;
+                fz[j] -= (fij * zij) / rij;
                 
                 // Actualizar los valores de la energía
                 ener = ener + uij;
