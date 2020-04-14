@@ -31,17 +31,16 @@ void iniconf(float *x, float *y, float *z, float rho, float rc, int num_part)
     }
 }
 
-__device__ 
-void hardsphere(float r_pos, float uij, float fij)
-{
-    uij = (a_param / temp) * (powf(1.0f / r_pos, lambda) - powf(1.0f / r_pos, lambda - 1.0f));
-    fij = lambda * powf(1.0f / r_pos, lambda + 1.0f) - (lambda - 1.0f) * powf(1.0f / r_pos, lambda);
+// __device__ void hardsphere(float r_pos, float uij, float fij)
+// {
+//     uij = (a_param / temp) * (powf(1.0f / r_pos, lambda) - powf(1.0f / r_pos, lambda - 1.0f));
+//     fij = lambda * powf(1.0f / r_pos, lambda + 1.0f) - (lambda - 1.0f) * powf(1.0f / r_pos, lambda);
 
-    fij *= (a_param / temp);
-    uij += 1.0f / temp;
-}
+//     fij *= (a_param / temp);
+//     uij += 1.0f / temp;
+// }
 
-__global__ 
+__global__
 void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
                           int num_part, float box_l, float *ener)
 {
@@ -93,7 +92,11 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
                 // Siempre se calcula la fuerza
                 if (rij < b_param)
                 {
-                    hardsphere(rij, uij, fij);
+                    uij = (a_param / temp) * (powf(1.0f / r_pos, lambda) - powf(1.0f / r_pos, lambda - 1.0f));
+                    fij = lambda * powf(1.0f / r_pos, lambda + 1.0f) - (lambda - 1.0f) * powf(1.0f / r_pos, lambda);
+
+                    fij *= (a_param / temp);
+                    uij += 1.0f / temp;
                     printf("energy: %f\n", uij);
                 }
                 else
@@ -110,13 +113,13 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
                 atomicAdd(&fx[j], -(fij * xij) / rij);
                 atomicAdd(&fy[j], -(fij * yij) / rij);
                 atomicAdd(&fz[j], -(fij * zij) / rij);
-                
+
                 // Actualizar los valores de la energía
                 potential += uij;
                 // printf("%f\n", ener);
             }
         }
-    ener[i] = potential;
+        ener[i] = potential;
     }
 }
 
@@ -174,9 +177,9 @@ __global__ void position(float *x, float *y, float *z, float *fx, float *fy, flo
 
     for (i = idx; i < num_part; i += stride)
     {
-        dx = sigma * randvec[3*i];
-        dy = sigma * randvec[(3*i)+1];
-        dz = sigma * randvec[(3*i)+2];
+        dx = sigma * randvec[3 * i];
+        dy = sigma * randvec[(3 * i) + 1];
+        dz = sigma * randvec[(3 * i) + 2];
 
         x[i] += fx[i] * dtt + dx;
         y[i] += fy[i] * dtt + dy;
