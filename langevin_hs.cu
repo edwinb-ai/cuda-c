@@ -119,12 +119,12 @@ int main(int argc, char const *argv[])
         if (i % 1000 == 0)
         {
             printf("%d %.10f Thermal\n", i, ener / ((float)(n_part)));
-            for (int k = 0; k < n_part; k++)
-            {
-                printf("%.10f %.10f %.10f\n", x[k], y[k], z[k]);
-                printf("FORCES\n");
-                printf("%.10f %.10f %.10f\n", fx[k], fy[k], fz[k]);
-            }
+            // for (int k = 0; k < n_part; k++)
+            // {
+            //     printf("%.10f %.10f %.10f\n", x[k], y[k], z[k]);
+            //     printf("FORCES\n");
+            //     printf("%.10f %.10f %.10f\n", fx[k], fy[k], fz[k]);
+            // }
         }
         if (i % 100 == 0)
         {
