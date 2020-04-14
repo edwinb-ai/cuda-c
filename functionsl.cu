@@ -61,9 +61,9 @@ __global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, fl
         fz[i] = 0.0f;
     }
 
-    if (idx < num_part)
+    for (i = idx; i < num_part; i += stride)
     {
-        for (j = idx+1; j < num_part; j++)
+        for (j = 0; j < num_part; j++)
         {
             if (i == j)
                 continue;
@@ -72,9 +72,9 @@ __global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, fl
             fij = 0.0f;
 
             // Contribucion de pares
-            xij = x[idx] - x[j];
-            yij = y[idx] - y[j];
-            zij = z[idx] - z[j];
+            xij = x[i] - x[j];
+            yij = y[i] - y[j];
+            zij = z[i] - z[j];
 
             // Condiciones de frontera
             xij -= (box_l * roundf(xij / box_l));
@@ -99,13 +99,13 @@ __global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, fl
                 }
 
                 // Actualizar los valores de las fuerzas
-                atomicAdd(&fx[idx], (fij * xij) / rij);
-                atomicAdd(&fy[idx], (fij * yij) / rij);
-                atomicAdd(&fz[idx], (fij * zij) / rij);
+                // atomicAdd(&fx[i], (fij * xij) / rij);
+                // atomicAdd(&fy[i], (fij * yij) / rij);
+                // atomicAdd(&fz[i], (fij * zij) / rij);
 
-                atomicAdd(&fx[j], -(fij * xij) / rij);
-                atomicAdd(&fy[j], -(fij * yij) / rij);
-                atomicAdd(&fz[j], -(fij * zij) / rij);
+                atomicAdd(&fx[j], 0.5f(fij * xij) / rij);
+                atomicAdd(&fy[j], 0.5f(fij * yij) / rij);
+                atomicAdd(&fz[j], 0.5f(fij * zij) / rij);
                 ener = ener + uij;
                 // printf("%f\n", ener);
             }
