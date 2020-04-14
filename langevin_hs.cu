@@ -106,57 +106,57 @@ int main(int argc, char const *argv[])
             fprintf(f_iniconf, "%.10f %.10f %.10f\n", x[i], y[i], z[i]);
         }
         fclose(f_iniconf);
-    }
 
-    // Verificar que la energía es cero
-    rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener);
-    cudaDeviceSynchronize();
-    float total_ener = 0.0f;
-    for (int i = 0; i < n_part; i++)
-        total_ener += ener[i];
-    printf("E/N: %.10f\n", total_ener / ((float)(n_part)));
-
-    // Termalizar el sistema
-    f_ener = fopen("energia.dat", "w");
-    f_final = fopen("final_conf.dat", "w");
-
-    for (int i = 0; i < nct; i++)
-    {
-        // * Crear números aleatorios
-        curandGenerateNormal(gen, rngvec_dev, rng_size, 0.0f, 1.0f);
-        position<<<bloques, hilos>>>(x, y, z, fx, fy, fz, d_tiempo, l_caja, n_part, 1, rngvec_dev);
-        cudaDeviceSynchronize();
+        // Verificar que la energía es cero
         rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener);
         cudaDeviceSynchronize();
+        float total_ener = 0.0f;
+        for (int i = 0; i < n_part; i++)
+            total_ener += ener[i];
+        printf("E/N: %.10f\n", total_ener / ((float)(n_part)));
 
-        // ! Calcular la energía total
-        total_ener = 0.0f;
-        for (int k = 0; k < n_part; k++)
-            total_ener += ener[k];
+        // Termalizar el sistema
+        f_ener = fopen("energia.dat", "w");
+        f_final = fopen("final_conf.dat", "w");
 
-        if (i % 1000 == 0)
+        for (int i = 0; i < nct; i++)
         {
-            for (size_t k = 0; k < n_part; k++)
+            // * Crear números aleatorios
+            curandGenerateNormal(gen, rngvec_dev, rng_size, 0.0f, 1.0f);
+            position<<<bloques, hilos>>>(x, y, z, fx, fy, fz, d_tiempo, l_caja, n_part, 1, rngvec_dev);
+            cudaDeviceSynchronize();
+            rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener);
+            cudaDeviceSynchronize();
+
+            // ! Calcular la energía total
+            total_ener = 0.0f;
+            for (int k = 0; k < n_part; k++)
+                total_ener += ener[k];
+
+            if (i % 1000 == 0)
             {
-                printf("%.10f %.10f %.10f\n", x[k], y[k], z[k]);
-                printf("FORCES\n");
-                printf("%.10f %.10f %.10f\n", fx[k], fy[k], fz[k]);
+                // for (size_t k = 0; k < n_part; k++)
+                // {
+                //     printf("%.10f %.10f %.10f\n", x[k], y[k], z[k]);
+                //     printf("FORCES\n");
+                //     printf("%.10f %.10f %.10f\n", fx[k], fy[k], fz[k]);
+                // }
+                printf("%d %.10f Thermal\n", i, total_ener / ((float)(n_part)));
             }
-            printf("%d %.10f Thermal\n", i, total_ener / ((float)(n_part)));
+            if (i % 100 == 0)
+            {
+                fprintf(f_ener, "%d %.10f\n", i, total_ener / ((float)(n_part)));
+            }
         }
-        if (i % 100 == 0)
-        {
-            fprintf(f_ener, "%d %.10f\n", i, total_ener / ((float)(n_part)));
-        }
-    }
-    fclose(f_ener);
+        fclose(f_ener);
 
-    // Guardar la configuración final después de termalizar
-    for (int i = 0; i < n_part; i++)
-    {
-        fprintf(f_final, "%.10f %.10f %.10f %.10f %.10f %.10f\n", x[i], y[i], z[i], fx[i], fy[i], fz[i]);
+        // Guardar la configuración final después de termalizar
+        for (int i = 0; i < n_part; i++)
+        {
+            fprintf(f_final, "%.10f %.10f %.10f %.10f %.10f %.10f\n", x[i], y[i], z[i], fx[i], fy[i], fz[i]);
+        }
+        fclose(f_final);
     }
-    fclose(f_final);
 
     // Calcular la g(r)
     int nprom = 0;
