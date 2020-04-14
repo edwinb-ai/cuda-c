@@ -190,31 +190,32 @@ __global__ void position(float *x, float *y, float *z, float *fx, float *fy, flo
     }
 }
 
-// // void difusion(int nprom, int n_part, float cfx[mt_n][mp], float cfy[mt_n][mp], float cfz[mt_n][mp], float* wt)
+__global__
+void difusion(const int nprom, const int n_part, float *cfx, float *cfy, float *cfz, float *wt)
+{
+    float dif = 0.0f;
+    int i = 0, j = 0, k = 0;
+    float dx = 0.0f, dy = 0.0f, dz = 0.0f, aux = 0.0f;
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+    int stride = blockDim.x * gridDim.x;
 
-// void difusion(const int nprom, const int n_part, float* cfx, float* cfy, float* cfz, float* wt)
-// {
-//     float dif = 0.0f;
-//     int i = 0, j = 0, k = 0;
-//     float dx = 0.0f, dy = 0.0f, dz = 0.0f, aux = 0.0f;
-
-//     // #pragma omp parallel for
-//     // Mean-squared displacement
-//     for (i = 0; i < nprom; i++)
-//     {
-//         dif = 0.0f;
-//         // printf("%d\n", nprom-i);
-//         for (j = 0; j < nprom-i; j++)
-//         {
-//             for (k = 0; k < n_part; k++)
-//             {
-//                 dx = cfx[(j+i)*mp + k] - cfx[j*mp + k];
-//                 dy = cfy[(j+i)*mp + k] - cfy[j*mp + k];
-//                 dz = cfz[(j+i)*mp + k] - cfz[j*mp + k];
-//                 dif += dx*dx + dy*dy + dz*dz;
-//             }
-//         }
-//         aux = (n_part*(nprom-i));
-//         wt[i] = (dif/aux);
-//     }
-// }
+    // Mean-squared displacement
+    for (i = 0; i < nprom; i++)
+    {
+        dif = 0.0f;
+        // printf("%d\n", nprom-i);
+        for (j = 0; j < nprom-i; j++)
+        {
+            // for (k = 0; k < n_part; k++)
+            for (k = idx; k < n_part; k += stride)
+            {
+                dx = cfx[(j+i)*mp + k] - cfx[j*mp + k];
+                dy = cfy[(j+i)*mp + k] - cfy[j*mp + k];
+                dz = cfz[(j+i)*mp + k] - cfz[j*mp + k];
+                dif += dx*dx + dy*dy + dz*dz;
+            }
+        }
+        aux = n_part * (nprom-i);
+        wt[i] = dif / aux;
+    }
+}

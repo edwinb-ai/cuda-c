@@ -21,7 +21,7 @@ int main(int argc, char const *argv[])
     int ncp = atoi(argv[3]);
     //  Paso de tiempo
     float d_tiempo = atof(argv[4]);
-    unsigned long long seed = (unsigned long long)atoi(argv[5]);
+    unsigned long long int seed = (unsigned long long int)atoi(argv[5]);
     //  Revisar si ya se tiene una configuración de termalización
     int config_termal = atoi(argv[6]);
 
@@ -201,15 +201,16 @@ int main(int argc, char const *argv[])
     }
     fclose(f_gr);
 
-    // // Mean-square displacement and intermediate scattering function
-    // difusion(nprom, n_part, cfx, cfy, cfz, wt);
+    // Mean-square displacement and intermediate scattering function
+    difusion<<<bloques, hilos>>>(nprom, n_part, cfx, cfy, cfz, wt);
+    cudaDeviceSynchronize();
 
-    // wt_f = fopen("wt.dat", "w");
-    // for (int i = 0; i < (ncp / 10); i++)
-    // {
-    //     fprintf(wt_f, "%.10f %.10f\n", t[i], wt[i]);
-    // }
-    // fclose(wt_f);
+    wt_f = fopen("wt.dat", "w");
+    for (int i = 0; i < (ncp / 10); i++)
+    {
+        fprintf(wt_f, "%.10f %.10f\n", t[i], wt[i]);
+    }
+    fclose(wt_f);
 
     // ! Cleanup
     curandDestroyGenerator(gen);
