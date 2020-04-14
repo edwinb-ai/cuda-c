@@ -189,7 +189,7 @@ int main(int argc, char const *argv[])
     float *r;
     cudaMallocManaged(&r, nm * sizeof(float));
     float dv = 0.0;
-    float hraux = 0.0, fnorm = 0.0;
+    float fnorm = 0.0;
 
     for (int i = 1; i < nm; i++)
     {
@@ -229,6 +229,6 @@ int main(int argc, char const *argv[])
     cudaFree(cfz);
     cudaFree(wt);
     cudaDeviceReset();
-    
+
     return EXIT_SUCCESS;
 }
