@@ -68,7 +68,7 @@ int main(int argc, char const *argv[])
 
     // Asignar hilos y bloques
     int hilos = 256;
-    int bloques = (n_part + hilos - 1) / hilos;
+    int bloques = rounf((n_part + hilos - 1) / hilos);
 
     // SI SE INGRESA UNA CONFIGURACION DE TERMALIZACION, SE LEE:
     if (config_termal == 1)
