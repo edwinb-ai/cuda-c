@@ -63,6 +63,7 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
         fx[i] = 0.0f;
         fy[i] = 0.0f;
         fz[i] = 0.0f;
+        ener[i] = 0.0f;
     }
 
     for (i = idx; i < num_part; i += stride)
