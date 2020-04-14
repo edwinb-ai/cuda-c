@@ -197,7 +197,7 @@ int main(int argc, char const *argv[])
         dv = 4.0 * pi * r[i] * r[i] * dr;
         fnorm = powf(l_caja, 3.0) / (powf(n_part, 2.0) * nprom * dv);
         g[i] = g[i] * fnorm;
-        fprintf(f_gr, "%.10f %.10f %.10f\n", r[i], g[i]);
+        fprintf(f_gr, "%.10f %.10f\n", r[i], g[i]);
     }
     fclose(f_gr);
 
