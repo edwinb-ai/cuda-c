@@ -186,7 +186,8 @@ int main(int argc, char const *argv[])
     printf("%.10f %d\n", dr, nprom);
 
     f_gr = fopen(argv[7], "w");
-    float *r = calloc(nm, sizeof(float));
+    float *r;
+    cudaMallocManaged(&r, nm * sizeof(float));
     float dv = 0.0;
     float hraux = 0.0, fnorm = 0.0;
 
@@ -220,14 +221,14 @@ int main(int argc, char const *argv[])
     cudaFree(fz);
     cudaFree(rngvec_dev);
     cudaFree(ener);
-    // free(r);
-    // free(g);
-    // free(t);
-    // free(cfx);
-    // free(cfy);
-    // free(cfz);
-    // free(wt);
-    // free(h);
+    cudaFree(r);
+    cudaFree(g);
+    cudaFree(t);
+    cudaFree(cfx);
+    cudaFree(cfy);
+    cudaFree(cfz);
+    cudaFree(wt);
     cudaDeviceReset();
+    
     return EXIT_SUCCESS;
 }
