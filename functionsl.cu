@@ -46,8 +46,7 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
                           int num_part, float box_l, float ener)
 {
     // Parámetros
-    float rc = box_l / 2.0f;
-    float rc2 = rc * rc;
+    float rc = box_l * 0.5f;
     // float d_r = rc / nm;
 
     // Inicializar algunas variables de la posicion
@@ -86,11 +85,10 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
             yij -= box_l * roundf(yij / box_l);
             zij -= box_l * roundf(zij / box_l);
 
-            rij = xij * xij + yij * yij + zij * zij;
+            rij = sqrtf(xij * xij + yij * yij + zij * zij);
 
-            if (rij < rc2)
+            if (rij < rc)
             {
-                rij = sqrtf(rij);
                 // Siempre se calcula la fuerza
                 if (rij < b_param)
                 {
