@@ -94,6 +94,7 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
                 if (rij < b_param)
                 {
                     hardsphere(rij, uij, fij);
+                    printf("energy: %f\n", uij);
                 }
                 else
                 {
@@ -183,9 +184,9 @@ __global__ void position(float *x, float *y, float *z, float *fx, float *fy, flo
 
         if (pbc == 1)
         {
-            x[i] -= (box_l * round(x[i] / box_l));
-            y[i] -= (box_l * round(y[i] / box_l));
-            z[i] -= (box_l * round(z[i] / box_l));
+            x[i] -= box_l * round(x[i] / box_l);
+            y[i] -= box_l * round(y[i] / box_l);
+            z[i] -= box_l * round(z[i] / box_l);
         }
     }
 }

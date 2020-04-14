@@ -102,7 +102,7 @@ int main(int argc, char const *argv[])
 
     // Verificar que la energía es cero
     rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener);
-    cudaThreadSynchronize();
+    cudaDeviceSynchronize();
     float total_ener = 0.0f;
     for (int i = 0; i < n_part; i++)
         total_ener += ener[i];
@@ -117,9 +117,9 @@ int main(int argc, char const *argv[])
         // * Crear números aleatorios
         curandGenerateNormal(gen, rngvec_dev, rng_size, 0.0f, 1.0f);
         position<<<bloques, hilos>>>(x, y, z, fx, fy, fz, d_tiempo, l_caja, n_part, 1, rngvec_dev);
-        cudaThreadSynchronize();
+        cudaDeviceSynchronize();
         rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener);
-        cudaThreadSynchronize();
+        cudaDeviceSynchronize();
         
         // ! Calcular la energía total
         total_ener = 0.0f;
@@ -213,6 +213,7 @@ int main(int argc, char const *argv[])
     cudaFree(fy);
     cudaFree(fz);
     cudaFree(rngvec_dev);
+    cudaFree(ener);
     // free(r);
     // free(g);
     // free(t);
@@ -221,5 +222,6 @@ int main(int argc, char const *argv[])
     // free(cfz);
     // free(wt);
     // free(h);
+    cudaDeviceReset();
     return EXIT_SUCCESS;
 }
