@@ -214,8 +214,7 @@ int main(int argc, char const *argv[])
     fclose(f_gr);
 
     // Mean-square displacement and intermediate scattering function
-    difusion<<<bloques, hilos>>>(nprom, n_part, cfx, cfy, cfz, wt);
-    cudaDeviceSynchronize();
+    difusion(nprom, n_part, cfx, cfy, cfz, wt);
 
     wt_f = fopen("wt.dat", "w");
     for (int i = 0; i < (ncp / ncep); i++)
