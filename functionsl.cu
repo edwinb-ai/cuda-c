@@ -135,9 +135,9 @@ void gr(float *x, float *y, float *z, float *g, int num_part, float box_l)
         {
 
             // Contribucion de pares
-            xij = x[j] - x[i];
-            yij = y[j] - y[i];
-            zij = z[j] - z[i];
+            xij = x[i] - x[j];
+            yij = y[i] - y[j];
+            zij = z[i] - z[j];
 
             // Condiciones de frontera
             xij -= box_l * roundf(xij / box_l);
@@ -211,6 +211,6 @@ void difusion(const int nprom, const int n_part, float *cfx, float *cfy, float *
             }
         }
         aux = n_part * (nprom - i);
-        wt[i] = (dif / aux);
+        wt[i] += (dif / aux);
     }
 }
