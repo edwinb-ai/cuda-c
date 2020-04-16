@@ -13,11 +13,12 @@ int main(int argc, char const *argv[])
     FILE *wt_f;
 
     //  Numero de particulas
-    int n_part = 4096;
+    int simple_part = 12;
+    int n_part = simple_part*simple_part*simple_part;
     //  Fracción de empaquetamiento
     float phi = atof(argv[1]);
     //  Densidad
-    float rho = 6.0 * phi / pi;
+    float rho = 6.0 * phi / PI;
     //  Configuraciones para termalizar
     int nct = atoi(argv[2]);
     //  Termalización
@@ -183,7 +184,7 @@ int main(int argc, char const *argv[])
         if (i % ncep == 0)
         // if (i%n_part == 0) // Promediar cada numero total de particulas
         {
-            t[nprom] = d_tiempo * (float)(ncep)*nprom;
+            t[nprom] = d_tiempo * (float)(ncep) * nprom;
             for (int j = 0; j < n_part; j++)
             {
                 cfx[nprom * mp + j] = x[j];
@@ -206,7 +207,7 @@ int main(int argc, char const *argv[])
     for (int i = 1; i < nm; i++)
     {
         r[i] = (i - 1) * dr;
-        dv = 4.0f * pi * r[i] * r[i] * dr;
+        dv = 4.0f * PI * r[i] * r[i] * dr;
         fnorm = powf(l_caja, 3.0f) / (powf(n_part, 2.0f) * nprom * dv);
         g[i] = g[i] * fnorm;
         fprintf(f_gr, "%.10f %.10f\n", r[i], g[i]);

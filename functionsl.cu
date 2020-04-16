@@ -40,8 +40,7 @@ void iniconf(float *x, float *y, float *z, float rho, float rc, int num_part)
 //     uij += 1.0f / temp;
 // }
 
-__global__
-void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
+__global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
                           int num_part, float box_l, float *ener)
 {
     // Parámetros
@@ -57,7 +56,7 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
     int stride = blockDim.x * gridDim.x;
 
-    for (i = idx; i < (num_part-1); i += stride)
+    for (i = idx; i < (num_part - 1); i += stride)
     {
         // Inicializar valores
         potential = 0.0f;
@@ -120,7 +119,7 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
     }
 }
 
-void gr(float* x, float* y, float* z, float* g, int num_part, float box_l)
+void gr(float *x, float *y, float *z, float *g, int num_part, float box_l)
 {
     // Parámetros
     float rc = box_l * 0.5f;
@@ -130,9 +129,9 @@ void gr(float* x, float* y, float* z, float* g, int num_part, float box_l)
     int i = 0, j = 0;
     float xij = 0.0f, yij = 0.0f, zij = 0.0f, rij = 0.0f;
 
-    for (i = 0; i < num_part; i++)
+    for (i = 0; i < num_part - 1; i++)
     {
-        for (j = i+1; j < num_part-1; j++)
+        for (j = i + 1; j < num_part; j++)
         {
 
             // Contribucion de pares
@@ -141,15 +140,15 @@ void gr(float* x, float* y, float* z, float* g, int num_part, float box_l)
             zij = z[j] - z[i];
 
             // Condiciones de frontera
-            xij -= (box_l * round(xij/box_l));
-            yij -= (box_l * round(yij/box_l));
-            zij -= (box_l * round(zij/box_l));
+            xij -= box_l * roundf(xij / box_l);
+            yij -= box_l * roundf(yij / box_l);
+            zij -= box_l * roundf(zij / box_l);
 
-            rij = sqrtf(xij*xij + yij*yij + zij*zij);
+            rij = sqrtf(xij * xij + yij * yij + zij * zij);
 
             if (rij < rc)
             {
-                nbin = (int)(rij/d_r) + 1;
+                nbin = (int)(rij / d_r) + 1;
                 if (nbin <= nm)
                 {
                     g[nbin] += 2.0f;
@@ -201,17 +200,17 @@ void difusion(const int nprom, const int n_part, float *cfx, float *cfy, float *
     {
         dif = 0.0f;
         // printf("%d\n", nprom-i);
-        for (j = 0; j < nprom-i; j++)
+        for (j = 0; j < (nprom - i); j++)
         {
             for (k = 0; k < n_part; k++)
             {
-                dx = cfx[(j+i)*mp + k] - cfx[j*mp + k];
-                dy = cfy[(j+i)*mp + k] - cfy[j*mp + k];
-                dz = cfz[(j+i)*mp + k] - cfz[j*mp + k];
-                dif += dx*dx + dy*dy + dz*dz;
+                dx = cfx[(j + i) * mp + k] - cfx[j * mp + k];
+                dy = cfy[(j + i) * mp + k] - cfy[j * mp + k];
+                dz = cfz[(j + i) * mp + k] - cfz[j * mp + k];
+                dif += dx * dx + dy * dy + dz * dz;
             }
         }
-        aux = n_part * (nprom-i);
-        wt[i] = dif / aux;
+        aux = n_part * (nprom - i);
+        wt[i] = (dif / aux);
     }
 }

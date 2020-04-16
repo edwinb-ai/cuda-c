@@ -6,6 +6,7 @@
 #include "functionsl.h"
 #include "cuda.h"
 #include "curand.h"
+#define PI 3.14159265f
 
 // Algunas variables globales
 static const float lambda = 50.0f;
@@ -14,8 +15,7 @@ static const float b_param = 1.0204081632f;
 static const float temp = 1.4737f;
 static const int mt_n = 200000;
 static const int mp = 4096;
-static const int nm = 4096;
-static const float pi = 3.14159265f;
+static const int nm = 2048;
 
 // Funciones generales del código
 void iniconf(float *x, float *y, float *z, float rho, float t_caja, int num_part);
