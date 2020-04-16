@@ -18,7 +18,7 @@ int main(int argc, char const *argv[])
     //  Fracción de empaquetamiento
     float phi = atof(argv[1]);
     //  Densidad
-    float rho = 6.0 * phi / PI;
+    float rho = 6.0f * phi / PI;
     //  Configuraciones para termalizar
     int nct = atoi(argv[2]);
     //  Termalización
@@ -30,13 +30,13 @@ int main(int argc, char const *argv[])
     int config_termal = atoi(argv[6]);
 
     // Tamaño de caja
-    float l_caja = powf((float)(n_part) / rho, 1.0 / 3.0);
-    float radio_c = l_caja / 2.0;
+    float l_caja = powf((float)(n_part) / rho, 1.0f / 3.0f);
+    float radio_c = l_caja / 2.0f;
     float dr = radio_c / nm;
 
     // Mostrar información del sistema
     printf("El tamaño de la caja es: %f\n", l_caja);
-    printf("Distancia media entre partículas: %f\n", powf(rho, -1.0 / 3.0));
+    printf("Distancia media entre partículas: %f\n", powf(rho, -1.0f / 3.0f));
     printf("Radio de corte: %f\n", radio_c);
 
     // ! RNG variables
@@ -187,9 +187,9 @@ int main(int argc, char const *argv[])
             t[nprom] = d_tiempo * (float)(ncep) * nprom;
             for (int j = 0; j < n_part; j++)
             {
-                cfx[nprom * mp + j] = x[j];
-                cfy[nprom * mp + j] = y[j];
-                cfz[nprom * mp + j] = z[j];
+                cfx[nprom * n_part + j] = x[j];
+                cfy[nprom * n_part + j] = y[j];
+                cfz[nprom * n_part + j] = z[j];
             }
             nprom++;
             gr(x, y, z, g, n_part, l_caja);

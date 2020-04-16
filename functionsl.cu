@@ -3,12 +3,12 @@
 void iniconf(float *x, float *y, float *z, float rho, float rc, int num_part)
 {
     // Definir la distancia según la densidad
-    float dist = powf(1.0 / rho, 1.0 / 3.0);
+    float dist = powf(1.0f / rho, 1.0f / 3.0f);
 
     // Inicializar las primeras posiciones
-    x[0] = -rc + (dist / 2.0);
-    y[0] = -rc + (dist / 2.0);
-    z[0] = -rc + (dist / 2.0);
+    x[0] = -rc + (dist / 2.0f);
+    y[0] = -rc + (dist / 2.0f);
+    z[0] = -rc + (dist / 2.0f);
 
     for (int i = 1; i < num_part - 1; i++)
     {
@@ -30,15 +30,6 @@ void iniconf(float *x, float *y, float *z, float rho, float rc, int num_part)
         }
     }
 }
-
-// __device__ void hardsphere(float r_pos, float uij, float fij)
-// {
-//     uij = (a_param / temp) * (powf(1.0f / r_pos, lambda) - powf(1.0f / r_pos, lambda - 1.0f));
-//     fij = lambda * powf(1.0f / r_pos, lambda + 1.0f) - (lambda - 1.0f) * powf(1.0f / r_pos, lambda);
-
-//     fij *= (a_param / temp);
-//     uij += 1.0f / temp;
-// }
 
 __global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
                           int num_part, float box_l, float *ener)
@@ -182,9 +173,9 @@ __global__ void position(float *x, float *y, float *z, float *fx, float *fy, flo
 
         if (pbc == 1)
         {
-            x[i] -= box_l * roundf(x[i] / box_l);
-            y[i] -= box_l * roundf(y[i] / box_l);
-            z[i] -= box_l * roundf(z[i] / box_l);
+            x[i] -= (box_l * roundf(x[i] / box_l));
+            y[i] -= (box_l * roundf(y[i] / box_l));
+            z[i] -= (box_l * roundf(z[i] / box_l));
         }
     }
 }
@@ -204,9 +195,9 @@ void difusion(const int nprom, const int n_part, float *cfx, float *cfy, float *
         {
             for (k = 0; k < n_part; k++)
             {
-                dx = cfx[(j + i) * mp + k] - cfx[j * mp + k];
-                dy = cfy[(j + i) * mp + k] - cfy[j * mp + k];
-                dz = cfz[(j + i) * mp + k] - cfz[j * mp + k];
+                dx = cfx[(j + i) * n_part + k] - cfx[j * n_part + k];
+                dy = cfy[(j + i) * n_part + k] - cfy[j * n_part + k];
+                dz = cfz[(j + i) * n_part + k] - cfz[j * n_part + k];
                 dif += dx * dx + dy * dy + dz * dz;
             }
         }
