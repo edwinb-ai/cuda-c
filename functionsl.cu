@@ -47,7 +47,7 @@ __global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, fl
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
     int stride = blockDim.x * gridDim.x;
 
-    for (i = idx; i < (num_part - 1); i += stride)
+    for (i = idx; i < num_part - 1; i += stride)
     {
         // Inicializar valores
         potential = 0.0f;
@@ -187,11 +187,11 @@ void difusion(const int nprom, const int n_part, float *cfx, float *cfy, float *
     float dx = 0.0f, dy = 0.0f, dz = 0.0f, aux = 0.0f;
 
     // Mean-squared displacement
-    for (i = 0; i < nprom; i++)
+    for (i = 0; i < nprom-1; i++)
     {
         dif = 0.0f;
         // printf("%d\n", nprom-i);
-        for (j = 0; j < (nprom - i); j++)
+        for (j = 0; j < nprom - i; j++)
         {
             for (k = 0; k < n_part; k++)
             {
