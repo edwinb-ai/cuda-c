@@ -62,17 +62,17 @@ int main(int argc, char const *argv[])
     cudaMallocManaged(&fz, n_part * sizeof(float));
     float *g;
     cudaMallocManaged(&g, nm * sizeof(float));
-    float *t;
-    cudaMallocManaged(&t, mt_n * sizeof(float));
-    float *wt;
-    cudaMallocManaged(&wt, mt_n * sizeof(float));
+    float *t = calloc(mt_n, sizeof(float));
+    // cudaMallocManaged(&t, mt_n * sizeof(float));
+    float *wt = calloc(mt_n, sizeof(float));
+    // cudaMallocManaged(&wt, mt_n * sizeof(float));
 
-    float *cfx;
-    cudaMallocManaged(&cfx, mt_n * n_part * sizeof(float));
-    float *cfy;
-    cudaMallocManaged(&cfy, mt_n * n_part * sizeof(float));
-    float *cfz;
-    cudaMallocManaged(&cfz, mt_n * n_part * sizeof(float));
+    float *cfx = calloc(mt_n * n_part, sizeof(float));
+    // cudaMallocManaged(&cfx, mt_n * n_part * sizeof(float));
+    float *cfy = calloc(mt_n * n_part, sizeof(float));
+    // cudaMallocManaged(&cfy, mt_n * n_part * sizeof(float));
+    float *cfz = calloc(mt_n * n_part, sizeof(float));
+    // cudaMallocManaged(&cfz, mt_n * n_part * sizeof(float));
     float *ener;
     cudaMallocManaged(&ener, n_part * sizeof(float));
     float total_ener = 0.0f;
@@ -235,11 +235,12 @@ int main(int argc, char const *argv[])
     cudaFree(ener);
     cudaFree(r);
     cudaFree(g);
-    cudaFree(t);
-    cudaFree(cfx);
-    cudaFree(cfy);
-    cudaFree(cfz);
-    cudaFree(wt);
+
+    free(t);
+    free(cfx);
+    free(cfy);
+    free(cfz);
+    free(wt);
     cudaDeviceReset();
 
     return EXIT_SUCCESS;
