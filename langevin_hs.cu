@@ -182,7 +182,6 @@ int main(int argc, char const *argv[])
             printf("%d %.10f Average\n", i, total_ener / ((float)(n_part)));
         }
         if (i % ncep == 0)
-        // if (i%n_part == 0) // Promediar cada numero total de particulas
         {
             t[nprom] = d_tiempo * (float)(ncep) * nprom;
             for (int j = 0; j < n_part; j++)
