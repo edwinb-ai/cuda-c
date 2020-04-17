@@ -50,11 +50,16 @@ __global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, fl
     for (i = idx; i < num_part - 1; i += stride)
     {
         // Inicializar valores
-        potential = 0.0f;
         fx[i] = 0.0f;
         fy[i] = 0.0f;
         fz[i] = 0.0f;
         ener[i] = 0.0f;
+    }
+
+    for (i = idx; i < num_part - 1; i += stride)
+    {
+        // Inicializar valores
+        potential = 0.0f;
 
         for (j = 0; j < num_part; j++)
         {
