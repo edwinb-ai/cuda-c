@@ -125,15 +125,15 @@ void gr(float *x, float *y, float *z, float *g, int num_part, float box_l)
     int i = 0, j = 0;
     float xij = 0.0f, yij = 0.0f, zij = 0.0f, rij = 0.0f;
 
-    for (i = 0; i < num_part - 1; i++)
+    for (i = 0; i < num_part; i++)
     {
-        for (j = i + 1; j < num_part; j++)
+        for (j = i + 1; j < num_part-1; j++)
         {
 
             // Contribucion de pares
-            xij = x[i] - x[j];
-            yij = y[i] - y[j];
-            zij = z[i] - z[j];
+            xij = x[j] - x[i];
+            yij = y[j] - y[i];
+            zij = z[j] - z[i];
 
             // Condiciones de frontera
             xij -= box_l * roundf(xij / box_l);
