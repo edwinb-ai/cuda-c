@@ -7,7 +7,7 @@ int main(int argc, char const *argv[])
 
     // Archivos para trabajar
     FILE *f_iniconf;
-    FILE *f_gr;
+    // FILE *f_gr;
     FILE *f_final;
     FILE *f_ener;
     FILE *wt_f;
