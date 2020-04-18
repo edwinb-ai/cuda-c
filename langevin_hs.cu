@@ -60,8 +60,8 @@ int main(int argc, char const *argv[])
     cudaMallocManaged(&fy, n_part * sizeof(float));
     float *fz;
     cudaMallocManaged(&fz, n_part * sizeof(float));
-    float *g;
-    cudaMallocManaged(&g, nm * sizeof(float));
+    // float *g;
+    // cudaMallocManaged(&g, nm * sizeof(float));
     float *t;
     cudaMallocManaged(&t, mt_n * sizeof(float));
     float *wt;
@@ -191,27 +191,27 @@ int main(int argc, char const *argv[])
                 cfz[nprom * n_part + j] = z[j];
             }
             nprom++;
-            gr(x, y, z, g, n_part, l_caja);
+            // gr(x, y, z, g, n_part, l_caja);
         }
     }
 
     printf("%.10f %d\n", dr, nprom);
 
-    f_gr = fopen(argv[7], "w");
-    float *r;
-    cudaMallocManaged(&r, nm * sizeof(float));
-    float dv = 0.0f;
-    float fnorm = 0.0f;
+    // f_gr = fopen(argv[7], "w");
+    // float *r;
+    // cudaMallocManaged(&r, nm * sizeof(float));
+    // float dv = 0.0f;
+    // float fnorm = 0.0f;
 
-    for (int i = 1; i < nm; i++)
-    {
-        r[i] = (i - 1) * dr;
-        dv = 4.0f * PI * r[i] * r[i] * dr;
-        fnorm = powf(l_caja, 3.0f) / (powf(n_part, 2.0f) * nprom * dv);
-        g[i] = g[i] * fnorm;
-        fprintf(f_gr, "%.10f %.10f\n", r[i], g[i]);
-    }
-    fclose(f_gr);
+    // for (int i = 1; i < nm; i++)
+    // {
+    //     r[i] = (i - 1) * dr;
+    //     dv = 4.0f * PI * r[i] * r[i] * dr;
+    //     fnorm = powf(l_caja, 3.0f) / (powf(n_part, 2.0f) * nprom * dv);
+    //     g[i] = g[i] * fnorm;
+    //     fprintf(f_gr, "%.10f %.10f\n", r[i], g[i]);
+    // }
+    // fclose(f_gr);
 
     // Mean-square displacement and intermediate scattering function
     difusion(nprom, n_part, cfx, cfy, cfz, wt);
@@ -233,8 +233,8 @@ int main(int argc, char const *argv[])
     cudaFree(fz);
     cudaFree(rngvec_dev);
     cudaFree(ener);
-    cudaFree(r);
-    cudaFree(g);
+    // cudaFree(r);
+    // cudaFree(g);
     cudaFree(t);
     cudaFree(cfx);
     cudaFree(cfy);
