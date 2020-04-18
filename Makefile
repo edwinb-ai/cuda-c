@@ -1,5 +1,5 @@
 CC=nvcc
-FLAGS=-lcurand -g -G -O2
+FLAGS=-lcurand -g -G
 FILES=langevin_hs.cu functionsl.cu
 
 make:
