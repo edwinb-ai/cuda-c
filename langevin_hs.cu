@@ -13,7 +13,7 @@ int main(int argc, char const *argv[])
     FILE *wt_f;
 
     //  Numero de particulas
-    int simple_part = 16;
+    int simple_part = 12;
     int n_part = simple_part*simple_part*simple_part;
     //  Fracción de empaquetamiento
     float phi = atof(argv[1]);
@@ -162,7 +162,7 @@ int main(int argc, char const *argv[])
 
     // Calcular la g(r)
     int nprom = 0;
-    int ncep = 1;
+    int ncep = 10;
     for (int i = 0; i < ncp; i++)
     {
         // * Crear números aleatorios
