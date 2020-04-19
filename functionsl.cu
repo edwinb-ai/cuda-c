@@ -98,17 +98,16 @@ __global__ void rdf_force(double *x, double *y, double *z, double *fx, double *f
                 }
 
                 // Actualizar los valores de las fuerzas
-                atomicAdd(&fx[i], (fij * xij) / rij);
-                atomicAdd(&fy[i], (fij * yij) / rij);
-                atomicAdd(&fz[i], (fij * zij) / rij);
+                fx[i] += (fij * xij) / rij;
+                fy[i] += (fij * yij) / rij;
+                fz[i] += (fij * zij) / rij;
 
-                atomicAdd(&fx[j], -(fij * xij) / rij);
-                atomicAdd(&fy[j], -(fij * yij) / rij);
-                atomicAdd(&fz[j], -(fij * zij) / rij);
+                fx[j] -= (fij * xij) / rij;
+                fy[j] -= (fij * yij) / rij;
+                fz[j] -= (fij * zij) / rij;
 
                 // Actualizar los valores de la energía
                 potential += uij;
-                // printf("%f\n", ener);
             }
         }
         ener[i] = potential;
