@@ -1,14 +1,14 @@
 #include "functionsl.h"
 
-void iniconf(float *x, float *y, float *z, float rho, float rc, int num_part)
+void iniconf(double *x, double *y, double *z, double rho, double rc, int num_part)
 {
     // Definir la distancia según la densidad
-    float dist = powf(1.0f / rho, 1.0f / 3.0f);
+    double dist = pow(1.0 / rho, 1.0 / 3.0);
 
     // Inicializar las primeras posiciones
-    x[0] = -rc + (dist / 2.0f);
-    y[0] = -rc + (dist / 2.0f);
-    z[0] = -rc + (dist / 2.0f);
+    x[0] = -rc + (dist / 2.0);
+    y[0] = -rc + (dist / 2.0);
+    z[0] = -rc + (dist / 2.0);
 
     for (int i = 1; i < num_part - 1; i++)
     {
@@ -31,18 +31,18 @@ void iniconf(float *x, float *y, float *z, float rho, float rc, int num_part)
     }
 }
 
-__global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
-                          int num_part, float box_l, float *ener)
+__global__ void rdf_force(double *x, double *y, double *z, double *fx, double *fy, double *fz,
+                          int num_part, double box_l, double *ener)
 {
     // Parámetros
-    float rc = box_l * 0.5f;
-    // float d_r = rc / nm;
+    double rc = box_l * 0.5f;
+    // double d_r = rc / nm;
 
     // Inicializar algunas variables de la posicion
-    float xij = 0.0f, yij = 0.0f, zij = 0.0f, rij = 0.0f;
-    float fij = 0.0f;
-    float uij = 0.0f;
-    float potential = 0.0f;
+    double xij = 0.0, yij = 0.0, zij = 0.0, rij = 0.0;
+    double fij = 0.0;
+    double uij = 0.0;
+    double potential = 0.0;
     int i = 0, j = 0;
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
     int stride = blockDim.x * gridDim.x;
@@ -50,24 +50,24 @@ __global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, fl
     for (i = idx; i < num_part - 1; i += stride)
     {
         // Inicializar valores
-        fx[i] = 0.0f;
-        fy[i] = 0.0f;
-        fz[i] = 0.0f;
-        ener[i] = 0.0f;
+        fx[i] = 0.0;
+        fy[i] = 0.0;
+        fz[i] = 0.0;
+        ener[i] = 0.0;
     }
 
     for (i = idx; i < num_part - 1; i += stride)
     {
         // Inicializar valores
-        potential = 0.0f;
+        potential = 0.0;
 
         for (j = 0; j < num_part; j++)
         {
             if (i == j)
                 continue;
             // Siempre inicializar en cero
-            uij = 0.0f;
-            fij = 0.0f;
+            uij = 0.0;
+            fij = 0.0;
 
             // Contribucion de pares
             xij = x[i] - x[j];
@@ -75,26 +75,26 @@ __global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, fl
             zij = z[i] - z[j];
 
             // Condiciones de frontera
-            xij -= (box_l * roundf(xij / box_l));
-            yij -= (box_l * roundf(yij / box_l));
-            zij -= (box_l * roundf(zij / box_l));
+            xij -= (box_l * round(xij / box_l));
+            yij -= (box_l * round(yij / box_l));
+            zij -= (box_l * round(zij / box_l));
 
-            rij = sqrtf(xij * xij + yij * yij + zij * zij);
+            rij = sqrt(xij * xij + yij * yij + zij * zij);
 
             if (rij < rc)
             {
                 // Siempre se calcula la fuerza
                 if (rij < b_param)
                 {
-                    uij = (a_param / temp) * (powf(1.0f / rij, lambda) - powf(1.0f / rij, lambda - 1.0f));
-                    fij = lambda * powf(1.0f / rij, lambda + 1.0f) - (lambda - 1.0f) * powf(1.0f / rij, lambda);
+                    uij = (a_param / temp) * (pow(1.0 / rij, lambda) - pow(1.0 / rij, lambda - 1.0));
+                    fij = lambda * pow(1.0 / rij, lambda + 1.0) - (lambda - 1.0) * pow(1.0 / rij, lambda);
                     fij *= (a_param / temp);
-                    uij += (1.0f / temp);
+                    uij += (1.0 / temp);
                 }
                 else
                 {
-                    uij = 0.0f;
-                    fij = 0.0f;
+                    uij = 0.0;
+                    fij = 0.0;
                 }
 
                 // Actualizar los valores de las fuerzas
@@ -115,15 +115,15 @@ __global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, fl
     }
 }
 
-void gr(float *x, float *y, float *z, float *g, int num_part, float box_l)
+void gr(double *x, double *y, double *z, double *g, int num_part, double box_l)
 {
     // Parámetros
-    float rc = box_l * 0.5f;
-    float d_r = rc / nm;
+    double rc = box_l * 0.5f;
+    double d_r = rc / nm;
 
     int nbin = 0;
     int i = 0, j = 0;
-    float xij = 0.0f, yij = 0.0f, zij = 0.0f, rij = 0.0f;
+    double xij = 0.0, yij = 0.0, zij = 0.0, rij = 0.0;
 
     for (i = 0; i < num_part; i++)
     {
@@ -136,32 +136,32 @@ void gr(float *x, float *y, float *z, float *g, int num_part, float box_l)
             zij = z[j] - z[i];
 
             // Condiciones de frontera
-            xij -= box_l * roundf(xij / box_l);
-            yij -= box_l * roundf(yij / box_l);
-            zij -= box_l * roundf(zij / box_l);
+            xij -= box_l * round(xij / box_l);
+            yij -= box_l * round(yij / box_l);
+            zij -= box_l * round(zij / box_l);
 
-            rij = sqrtf(xij * xij + yij * yij + zij * zij);
+            rij = sqrt(xij * xij + yij * yij + zij * zij);
 
             if (rij < rc)
             {
                 nbin = (int)(rij / d_r) + 1;
                 if (nbin <= nm)
                 {
-                    g[nbin] += 2.0f;
+                    g[nbin] += 2.0;
                 }
             }
         }
     }
 }
 
-__global__ void position(float *x, float *y, float *z, float *fx, float *fy, float *fz, float dtt,
-                         float box_l, int num_part, int pbc, float *randvec)
+__global__ void position(double *x, double *y, double *z, double *fx, double *fy, double *fz, double dtt,
+                         double box_l, int num_part, int pbc, double *randvec)
 {
     // Inicializar algunas variables
-    float dx = 0.0f;
-    float dy = 0.0f;
-    float dz = 0.0f;
-    float sigma = sqrtf(2.0f * dtt);
+    double dx = 0.0;
+    double dy = 0.0;
+    double dz = 0.0;
+    double sigma = sqrt(2.0 * dtt);
     int i = 0;
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
     int stride = blockDim.x * gridDim.x;
@@ -178,23 +178,23 @@ __global__ void position(float *x, float *y, float *z, float *fx, float *fy, flo
 
         if (pbc == 1)
         {
-            x[i] -= (box_l * roundf(x[i] / box_l));
-            y[i] -= (box_l * roundf(y[i] / box_l));
-            z[i] -= (box_l * roundf(z[i] / box_l));
+            x[i] -= (box_l * round(x[i] / box_l));
+            y[i] -= (box_l * round(y[i] / box_l));
+            z[i] -= (box_l * round(z[i] / box_l));
         }
     }
 }
 
-void difusion(const int nprom, const int n_part, float *cfx, float *cfy, float *cfz, float *wt)
+void difusion(const int nprom, const int n_part, double *cfx, double *cfy, double *cfz, double *wt)
 {
-    float dif = 0.0f;
+    double dif = 0.0;
     size_t i = 0, j = 0, k = 0;
-    float dx = 0.0f, dy = 0.0f, dz = 0.0f, aux = 0.0f;
+    double dx = 0.0, dy = 0.0, dz = 0.0, aux = 0.0;
 
     // Mean-squared displacement
-    for (i = 0; i < nprom-1; i++)
+    for (i = 0; i < nprom; i++)
     {
-        dif = 0.0f;
+        dif = 0.0;
         // printf("%d\n", nprom-i);
         for (j = 0; j < nprom - i; j++)
         {
@@ -206,7 +206,7 @@ void difusion(const int nprom, const int n_part, float *cfx, float *cfy, float *
                 dif += dx * dx + dy * dy + dz * dz;
             }
         }
-        aux = n_part * (nprom - i);
+        aux = (n_part * (nprom - i));
         wt[i] += (dif / aux);
     }
 }
