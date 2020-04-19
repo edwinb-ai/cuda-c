@@ -162,7 +162,7 @@ int main(int argc, char const *argv[])
 
     // Calcular la g(r)
     int nprom = 0;
-    int ncep = 10;
+    int ncep = 5;
     for (int i = 0; i < ncp; i++)
     {
         // * Crear números aleatorios
