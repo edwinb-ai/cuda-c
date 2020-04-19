@@ -124,7 +124,7 @@ int main(int argc, char const *argv[])
         for (int i = 0; i < nct; i++)
         {
             // * Crear números aleatorios
-            curandGenerateNormal(gen, rngvec_dev, rng_size, 0.0, 1.0);
+            curandGenerateNormalDouble(gen, rngvec_dev, rng_size, 0.0, 1.0);
             position<<<bloques, hilos>>>(x, y, z, fx, fy, fz, d_tiempo, l_caja, n_part, 1, rngvec_dev);
             cudaDeviceSynchronize();
             rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener);
