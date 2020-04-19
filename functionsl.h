@@ -8,25 +8,25 @@
 #include "curand.h"
 
 // Algunas variables globales
-static const double lambda = 50.0;
-static const double a_param = 134.5526623421209;
-static const double b_param = 1.0204081632653061;
-static const double temp = 1.4737;
+static const float lambda = 50.0f;
+static const float a_param = 134.552662342f;
+static const float b_param = 1.0204081632f;
+static const float temp = 1.4737f;
 static const int mt_n = 200000;
 static const int nm = 256;
-static const double PI = 3.141592653589793;
+static const float PI = 3.141592653f;
 
 // Funciones generales del código
-void iniconf(double *x, double *y, double *z, double rho, double t_caja, int num_part);
+void iniconf(float *x, float *y, float *z, float rho, float t_caja, int num_part);
 
-__global__ void rdf_force(double *x, double *y, double *z, double *fx, double *fy, double *fz,
-int num_part, double box_l, double *ener);
+__global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
+int num_part, float box_l, float *ener);
 
-__global__ void position(double* x, double* y, double* z, double* fx, double* fy, double* fz, double dtt,
-double box_l, int num_part, int pbc, double *randvec);
+__global__ void position(float* x, float* y, float* z, float* fx, float* fy, float* fz, float dtt,
+float box_l, int num_part, int pbc, float *randvec);
 
-void gr(double *x, double *y, double *z, double *g, int num_part, double box_l);
+void gr(float *x, float *y, float *z, float *g, int num_part, float box_l);
 
-void difusion(const int nprom, const int n_part, double *cfx, double *cfy, double *cfz, double *wt);
+void difusion(const int nprom, const int n_part, float *cfx, float *cfy, float *cfz, float *wt);
 
 #endif

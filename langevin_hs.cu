@@ -16,70 +16,70 @@ int main(int argc, char const *argv[])
     int simple_part = 12;
     int n_part = simple_part*simple_part*simple_part;
     //  Fracción de empaquetamiento
-    double phi = atof(argv[1]);
+    float phi = atof(argv[1]);
     //  Densidad
-    double rho = 6.0 * phi / PI;
+    float rho = 6.0f * phi / PI;
     //  Configuraciones para termalizar
     int nct = atoi(argv[2]);
     //  Termalización
     int ncp = atoi(argv[3]);
     //  Paso de tiempo
-    double d_tiempo = atof(argv[4]);
+    float d_tiempo = atof(argv[4]);
     unsigned long long int seed = (unsigned long long int)atoi(argv[5]);
     //  Revisar si ya se tiene una configuración de termalización
     int config_termal = atoi(argv[6]);
 
     // Tamaño de caja
-    double l_caja = pow((double)(n_part) / rho, 1.0 / 3.0);
-    double radio_c = l_caja / 2.0;
-    double dr = radio_c / nm;
+    float l_caja = powf((float)(n_part) / rho, 1.0f / 3.0f);
+    float radio_c = l_caja / 2.0f;
+    float dr = radio_c / nm;
 
     // Mostrar información del sistema
     printf("El tamaño de la caja es: %f\n", l_caja);
-    printf("Distancia media entre partículas: %f\n", pow(rho, -1.0 / 3.0));
+    printf("Distancia media entre partículas: %f\n", powf(rho, -1.0f / 3.0f));
     printf("Radio de corte: %f\n", radio_c);
 
     // ! RNG variables
     curandGenerator_t gen;
     curandCreateGenerator(&gen, CURAND_RNG_PSEUDO_DEFAULT);
     curandSetPseudoRandomGeneratorSeed(gen, seed);
-    double *rngvec_dev;
+    float *rngvec_dev;
     int rng_size = (int)(3 * n_part);
-    cudaMallocManaged(&rngvec_dev, rng_size * sizeof(double));
+    cudaMallocManaged(&rngvec_dev, rng_size * sizeof(float));
 
     // Inicializar los arreglos
-    double *x;
-    cudaMallocManaged(&x, n_part * sizeof(double));
-    double *y;
-    cudaMallocManaged(&y, n_part * sizeof(double));
-    double *z;
-    cudaMallocManaged(&z, n_part * sizeof(double));
-    double *fx;
-    cudaMallocManaged(&fx, n_part * sizeof(double));
-    double *fy;
-    cudaMallocManaged(&fy, n_part * sizeof(double));
-    double *fz;
-    cudaMallocManaged(&fz, n_part * sizeof(double));
-    // double *g;
-    // cudaMallocManaged(&g, nm * sizeof(double));
-    double *t;
-    cudaMallocManaged(&t, mt_n * sizeof(double));
-    double *wt;
-    cudaMallocManaged(&wt, mt_n * sizeof(double));
+    float *x;
+    cudaMallocManaged(&x, n_part * sizeof(float));
+    float *y;
+    cudaMallocManaged(&y, n_part * sizeof(float));
+    float *z;
+    cudaMallocManaged(&z, n_part * sizeof(float));
+    float *fx;
+    cudaMallocManaged(&fx, n_part * sizeof(float));
+    float *fy;
+    cudaMallocManaged(&fy, n_part * sizeof(float));
+    float *fz;
+    cudaMallocManaged(&fz, n_part * sizeof(float));
+    // float *g;
+    // cudaMallocManaged(&g, nm * sizeof(float));
+    float *t;
+    cudaMallocManaged(&t, mt_n * sizeof(float));
+    float *wt;
+    cudaMallocManaged(&wt, mt_n * sizeof(float));
 
-    double *cfx;
-    cudaMallocManaged(&cfx, mt_n * n_part * sizeof(double));
-    double *cfy;
-    cudaMallocManaged(&cfy, mt_n * n_part * sizeof(double));
-    double *cfz;
-    cudaMallocManaged(&cfz, mt_n * n_part * sizeof(double));
-    double *ener;
-    cudaMallocManaged(&ener, n_part * sizeof(double));
-    double total_ener = 0.0;
+    float *cfx;
+    cudaMallocManaged(&cfx, mt_n * n_part * sizeof(float));
+    float *cfy;
+    cudaMallocManaged(&cfy, mt_n * n_part * sizeof(float));
+    float *cfz;
+    cudaMallocManaged(&cfz, mt_n * n_part * sizeof(float));
+    float *ener;
+    cudaMallocManaged(&ener, n_part * sizeof(float));
+    float total_ener = 0.0f;
 
     // Asignar hilos y bloques
     int hilos = 256;
-    int bloques = round((n_part + hilos - 1) / hilos);
+    int bloques = roundf((n_part + hilos - 1) / hilos);
 
     // SI SE INGRESA UNA CONFIGURACION DE TERMALIZACION, SE LEE:
     if (config_termal == 1)
@@ -112,10 +112,10 @@ int main(int argc, char const *argv[])
         // Verificar que la energía es cero
         rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener);
         cudaDeviceSynchronize();
-        total_ener = 0.0;
+        total_ener = 0.0f;
         for (int i = 0; i < n_part; i++)
             total_ener += ener[i];
-        printf("E/N: %.10f\n", total_ener / ((double)(n_part)));
+        printf("E/N: %.10f\n", total_ener / ((float)(n_part)));
 
         // Termalizar el sistema
         f_ener = fopen("energia.dat", "w");
@@ -124,14 +124,14 @@ int main(int argc, char const *argv[])
         for (int i = 0; i < nct; i++)
         {
             // * Crear números aleatorios
-            curandGenerateNormalDouble(gen, rngvec_dev, rng_size, 0.0, 1.0);
+            curandGenerateNormal(gen, rngvec_dev, rng_size, 0.0f, 1.0f);
             position<<<bloques, hilos>>>(x, y, z, fx, fy, fz, d_tiempo, l_caja, n_part, 1, rngvec_dev);
             cudaDeviceSynchronize();
             rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener);
             cudaDeviceSynchronize();
 
             // ! Calcular la energía total
-            total_ener = 0.0;
+            total_ener = 0.0f;
             for (int k = 0; k < n_part; k++)
                 total_ener += ener[k];
 
@@ -143,11 +143,11 @@ int main(int argc, char const *argv[])
                 //     printf("FORCES\n");
                 //     printf("%.10f %.10f %.10f\n", fx[k], fy[k], fz[k]);
                 // }
-                printf("%d %.10f Thermal\n", i, total_ener / ((double)(n_part)));
+                printf("%d %.10f Thermal\n", i, total_ener / ((float)(n_part)));
             }
             if (i % 100 == 0)
             {
-                fprintf(f_ener, "%d %.10f\n", i, total_ener / ((double)(n_part)));
+                fprintf(f_ener, "%d %.10f\n", i, total_ener / ((float)(n_part)));
             }
         }
         fclose(f_ener);
@@ -166,24 +166,24 @@ int main(int argc, char const *argv[])
     for (int i = 0; i < ncp; i++)
     {
         // * Crear números aleatorios
-        curandGenerateNormalDouble(gen, rngvec_dev, rng_size, 0.0, 1.0);
+        curandGenerateNormal(gen, rngvec_dev, rng_size, 0.0f, 1.0f);
         position<<<bloques, hilos>>>(x, y, z, fx, fy, fz, d_tiempo, l_caja, n_part, 0, rngvec_dev);
         cudaDeviceSynchronize();
         rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener);
         cudaDeviceSynchronize();
 
         // ! Calcular la energía total
-        total_ener = 0.0;
+        total_ener = 0.0f;
         for (int k = 0; k < n_part; k++)
             total_ener += ener[k];
 
         if (i % 1000 == 0)
         {
-            printf("%d %.10f Average\n", i, total_ener / ((double)(n_part)));
+            printf("%d %.10f Average\n", i, total_ener / ((float)(n_part)));
         }
         if (i % ncep == 0)
         {
-            t[nprom] = d_tiempo * (double)(ncep) * nprom;
+            t[nprom] = d_tiempo * (float)(ncep) * nprom;
             for (int j = 0; j < n_part; j++)
             {
                 cfx[nprom * n_part + j] = x[j];
@@ -198,16 +198,16 @@ int main(int argc, char const *argv[])
     printf("%.10f %d\n", dr, nprom);
 
     // f_gr = fopen(argv[7], "w");
-    // double *r;
-    // cudaMallocManaged(&r, nm * sizeof(double));
-    // double dv = 0.0;
-    // double fnorm = 0.0;
+    // float *r;
+    // cudaMallocManaged(&r, nm * sizeof(float));
+    // float dv = 0.0f;
+    // float fnorm = 0.0f;
 
     // for (int i = 1; i < nm; i++)
     // {
     //     r[i] = (i - 1) * dr;
-    //     dv = 4.0 * PI * r[i] * r[i] * dr;
-    //     fnorm = powf(l_caja, 3.0) / (powf(n_part, 2.0) * nprom * dv);
+    //     dv = 4.0f * PI * r[i] * r[i] * dr;
+    //     fnorm = powff(l_caja, 3.0f) / (powff(n_part, 2.0f) * nprom * dv);
     //     g[i] = g[i] * fnorm;
     //     fprintf(f_gr, "%.10f %.10f\n", r[i], g[i]);
     // }
