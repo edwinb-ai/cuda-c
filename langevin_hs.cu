@@ -225,8 +225,8 @@ int main(int argc, char const *argv[])
         for (size_t j = 0; j < nprom - i; j++)
         {
             difusion<<<bloques, hilos>>>(n_part, cfx, cfy, cfz, dif, i, j);
+            cudaDeviceSynchronize();
         }
-        cudaDeviceSynchronize();
         aux = (n_part * (nprom - i));
         wt[i] += (dif[1] / aux);
     }
