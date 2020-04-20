@@ -216,11 +216,11 @@ int main(int argc, char const *argv[])
     // Mean-square displacement and intermediate scattering function
     cudaDeviceSynchronize();
     float aux = 0.0f;
-    float *dif = NULL;
+    float dif[1] = 0.0f;
     // Mean-squared displacement
     for (size_t i = 0; i < nprom; i++)
     {
-        *dif = 0.0f;
+        dif[1] = 0.0f;
         // printf("%d\n", nprom-i);
         for (size_t j = 0; j < nprom - i; j++)
         {
@@ -228,7 +228,7 @@ int main(int argc, char const *argv[])
         }
         cudaDeviceSynchronize();
         aux = (n_part * (nprom - i));
-        wt[i] += (*dif / aux);
+        wt[i] += (dif[1] / aux);
     }
 
     wt_f = fopen(argv[7], "w");
