@@ -187,7 +187,7 @@ void position(float *x, float *y, float *z, float *fx, float *fy, float *fz, flo
 }
 
 __global__
-void difusion(const int n_part, float *cfx, float *cfy, float *cfz, float *dif, size_t i, size_t j)
+void difusion(const int n_part, double *cfx, double *cfy, double *cfz, float *dif, size_t i, size_t j)
 {
     size_t k = 0;
     float dx = 0.0f, dy = 0.0f, dz = 0.0f;

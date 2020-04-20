@@ -67,12 +67,12 @@ int main(int argc, char const *argv[])
     float *wt;
     cudaMallocManaged(&wt, mt_n * sizeof(float));
 
-    float *cfx;
-    cudaMallocManaged(&cfx, mt_n * n_part * sizeof(float));
-    float *cfy;
-    cudaMallocManaged(&cfy, mt_n * n_part * sizeof(float));
-    float *cfz;
-    cudaMallocManaged(&cfz, mt_n * n_part * sizeof(float));
+    double *cfx;
+    cudaMallocManaged(&cfx, mt_n * n_part * sizeof(double));
+    double *cfy;
+    cudaMallocManaged(&cfy, mt_n * n_part * sizeof(double));
+    double *cfz;
+    cudaMallocManaged(&cfz, mt_n * n_part * sizeof(double));
     float *ener;
     cudaMallocManaged(&ener, n_part * sizeof(float));
     float total_ener = 0.0f;

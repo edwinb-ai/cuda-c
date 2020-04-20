@@ -27,6 +27,6 @@ float box_l, int num_part, int pbc, float *randvec);
 
 void gr(float *x, float *y, float *z, float *g, int num_part, float box_l);
 
-__global__ void difusion(const int n_part, float *cfx, float *cfy, float *cfz, float *dif, size_t i, size_t j);
+__global__ void difusion(const int n_part, double *cfx, double *cfy, double *cfz, float *dif, size_t i, size_t j);
 
 #endif
