@@ -184,25 +184,28 @@ __global__ void position(float *x, float *y, float *z, float *fx, float *fy, flo
     }
 }
 
+__global__
 void difusion(const int nprom, const int n_part, float *cfx, float *cfy, float *cfz, float *wt)
 {
-    float dif = 0.0f;
+    float *dif;
     size_t i = 0, j = 0, k = 0;
     float dx = 0.0f, dy = 0.0f, dz = 0.0f, aux = 0.0f;
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+    int stride = blockDim.x * gridDim.x;
 
     // Mean-squared displacement
     for (i = 0; i < nprom; i++)
     {
-        dif = 0.0f;
+        &dif = 0.0f;
         // printf("%d\n", nprom-i);
         for (j = 0; j < nprom - i; j++)
         {
-            for (k = 0; k < n_part; k++)
+            for (k = idx; k < n_part; k += stride)
             {
                 dx = cfx[(j + i) * n_part + k] - cfx[j * n_part + k];
                 dy = cfy[(j + i) * n_part + k] - cfy[j * n_part + k];
                 dz = cfz[(j + i) * n_part + k] - cfz[j * n_part + k];
-                dif += dx * dx + dy * dy + dz * dz;
+                atomicAdd(&dif, dx * dx + dy * dy + dz * dz);
             }
         }
         aux = (n_part * (nprom - i));
