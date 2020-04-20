@@ -216,7 +216,8 @@ int main(int argc, char const *argv[])
     // Mean-square displacement and intermediate scattering function
     cudaDeviceSynchronize();
     float aux = 0.0f;
-    float dif[1] = {0.0f};
+    float *dif;
+    cudaMallocManaged(&dif, sizeof(float));
     // Mean-squared displacement
     for (size_t i = 0; i < nprom; i++)
     {
