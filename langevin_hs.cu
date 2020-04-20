@@ -256,6 +256,7 @@ int main(int argc, char const *argv[])
     cudaFree(cfy);
     cudaFree(cfz);
     cudaFree(wt);
+    cudaFree(dif);
     cudaDeviceReset();
 
     return EXIT_SUCCESS;
