@@ -187,7 +187,7 @@ __global__ void position(float *x, float *y, float *z, float *fx, float *fy, flo
 __global__
 void difusion(const int nprom, const int n_part, float *cfx, float *cfy, float *cfz, float *wt)
 {
-    float *dif;
+    float *dif = NULL;
     size_t i = 0, j = 0, k = 0;
     float dx = 0.0f, dy = 0.0f, dz = 0.0f, aux = 0.0f;
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
