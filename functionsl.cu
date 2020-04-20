@@ -196,7 +196,7 @@ void difusion(const int nprom, const int n_part, float *cfx, float *cfy, float *
     // Mean-squared displacement
     for (i = 0; i < nprom; i++)
     {
-        &dif = 0.0f;
+        *dif = 0.0f;
         // printf("%d\n", nprom-i);
         for (j = 0; j < nprom - i; j++)
         {
