@@ -218,7 +218,7 @@ int main(int argc, char const *argv[])
     difusion<<<bloques, hilos>>>(nprom, n_part, cfx, cfy, cfz, wt);
     cudaDeviceSynchronize();
 
-    wt_f = fopen("wt.dat", "w");
+    wt_f = fopen(argv[7], "w");
     for (int i = 0; i < (ncp / ncep); i++)
     {
         fprintf(wt_f, "%.10f %.10f\n", t[i], wt[i]);
