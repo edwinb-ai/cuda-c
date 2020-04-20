@@ -228,7 +228,7 @@ int main(int argc, char const *argv[])
         }
         cudaDeviceSynchronize();
         aux = (n_part * (nprom - i));
-        wt[i] += (dif / aux);
+        wt[i] += (*dif / aux);
     }
 
     wt_f = fopen(argv[7], "w");
