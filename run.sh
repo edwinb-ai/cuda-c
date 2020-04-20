@@ -1,6 +1,6 @@
 make clean
 make
-time ./browniano 0.40 100000 200000 0.00001 123456789ULL 1 wt_12p_parallel.dat
+time ./browniano 0.40 100000 2000000 0.00001 123456789ULL 1 wt_12p_parallel.dat
 # ./a.out 0.40 0 100000 0.00001 12398765 1 gr_1.dat
 # ./a.out 0.40 0 100000 0.00001 32497068 1 gr_2.dat
 
