@@ -188,7 +188,7 @@ __global__
 void difusion(const int n_part, float *cfx, float *cfy, float *cfz, float *dif, size_t i, size_t j)
 {
     size_t k = 0;
-    float dx = 0.0f, dy = 0.0f, dz = 0.0f, aux = 0.0f;
+    float dx = 0.0f, dy = 0.0f, dz = 0.0f;
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
     int stride = blockDim.x * gridDim.x;
 
