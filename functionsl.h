@@ -20,10 +20,10 @@ static const float PI = 3.141592653f;
 void iniconf(float *x, float *y, float *z, float rho, float t_caja, int num_part);
 
 __global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
-int num_part, float box_l, float *ener);
+int num_part, float box_l, float *ener, float *vir);
 
-__global__ void position(float* x, float* y, float* z, float* fx, float* fy, float* fz, float dtt,
-float box_l, int num_part, int pbc, float *randvec);
+__global__ void position(float *x, float *y, float *z, float *fx, float *fy, float *fz, float dtt,
+float box_l, int num_part, int pbc, float *randx, float *randy, float *randz);
 
 void gr(float *x, float *y, float *z, float *g, int num_part, float box_l);
 

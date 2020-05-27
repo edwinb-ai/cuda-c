@@ -34,6 +34,12 @@ int main(int argc, char const *argv[])
     float radio_c = l_caja / 2.0f;
     float dr = radio_c / nm;
 
+    // Desviación estándar
+    float sigma = sqrtf(2.0f * d_tiempo);
+
+    // Factor de compresibilidad
+    float big_z = 0.0f;
+
     // Mostrar información del sistema
     printf("El tamaño de la caja es: %f\n", l_caja);
     printf("Distancia media entre partículas: %f\n", powf(rho, -1.0f / 3.0f));
@@ -43,9 +49,13 @@ int main(int argc, char const *argv[])
     curandGenerator_t gen;
     curandCreateGenerator(&gen, CURAND_RNG_PSEUDO_DEFAULT);
     curandSetPseudoRandomGeneratorSeed(gen, seed);
-    float *rngvec_dev;
-    int rng_size = (int)(3 * n_part);
-    cudaMallocManaged(&rngvec_dev, rng_size * sizeof(float));
+    // * Uno por cada dimensión
+    float *rngvecx_dev;
+    float *rngvecy_dev;
+    float *rngvecz_dev;
+    cudaMallocManaged(&rngvecx_dev, n_part * sizeof(float));
+    cudaMallocManaged(&rngvecy_dev, n_part * sizeof(float));
+    cudaMallocManaged(&rngvecz_dev, n_part * sizeof(float));
 
     // Inicializar los arreglos
     float *x;
@@ -76,6 +86,9 @@ int main(int argc, char const *argv[])
     float *ener;
     cudaMallocManaged(&ener, n_part * sizeof(float));
     float total_ener = 0.0f;
+    float *virial;
+    cudaMallocManaged(&virial, n_part * sizeof(float));
+    float total_virial = 0.0f;
 
     // Asignar hilos y bloques
     int hilos = 256;
@@ -110,7 +123,7 @@ int main(int argc, char const *argv[])
         fclose(f_iniconf);
 
         // Verificar que la energía es cero
-        rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener);
+        rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener, virial);
         cudaDeviceSynchronize();
         total_ener = 0.0f;
         for (int i = 0; i < n_part; i++)
@@ -124,16 +137,26 @@ int main(int argc, char const *argv[])
         for (int i = 0; i < nct; i++)
         {
             // * Crear números aleatorios
-            curandGenerateNormal(gen, rngvec_dev, rng_size, 0.0f, 1.0f);
-            position<<<bloques, hilos>>>(x, y, z, fx, fy, fz, d_tiempo, l_caja, n_part, 1, rngvec_dev);
-            cudaDeviceSynchronize();
-            rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener);
+            curandGenerateNormal(gen, rngvecx_dev, n_part, 0.0f, sigma);
+            curandGenerateNormal(gen, rngvecy_dev, n_part, 0.0f, sigma);
+            curandGenerateNormal(gen, rngvecz_dev, n_part, 0.0f, sigma);
+
+            // * Mover las partículas
+            position<<<bloques, hilos>>>(x, y, z, fx, fy, fz, d_tiempo,
+                l_caja, n_part, 1, rngvecx_dev, rngvecy_dev, rngvecz_dev);
             cudaDeviceSynchronize();
 
-            // ! Calcular la energía total
+            // * Calcular energías, fuerzas y virial
+            rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener, virial);
+            cudaDeviceSynchronize();
+
+            // ! Calcular la energía total y el virial
             total_ener = 0.0f;
             for (int k = 0; k < n_part; k++)
+            {
                 total_ener += ener[k];
+                total_virial += virial[k];
+            }
 
             if (i % 1000 == 0)
             {
@@ -162,20 +185,31 @@ int main(int argc, char const *argv[])
 
     // Calcular la g(r)
     int nprom = 0;
-    int ncep = 1;
+    int ncep = 10;
+    f_ener = fopen("promedio.csv", "w");
     for (int i = 0; i < ncp; i++)
     {
         // * Crear números aleatorios
-        curandGenerateNormal(gen, rngvec_dev, rng_size, 0.0f, 1.0f);
-        position<<<bloques, hilos>>>(x, y, z, fx, fy, fz, d_tiempo, l_caja, n_part, 0, rngvec_dev);
+        curandGenerateNormal(gen, rngvecx_dev, n_part, 0.0f, sigma);
+        curandGenerateNormal(gen, rngvecy_dev, n_part, 0.0f, sigma);
+        curandGenerateNormal(gen, rngvecz_dev, n_part, 0.0f, sigma);
+
+        // * Mover las partículas
+        position<<<bloques, hilos>>>(x, y, z, fx, fy, fz, d_tiempo,
+            l_caja, n_part, 1, rngvecx_dev, rngvecy_dev, rngvecz_dev);
         cudaDeviceSynchronize();
+
+        // * Calcular energías, fuerzas y virial
         rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener);
         cudaDeviceSynchronize();
 
-        // ! Calcular la energía total
+        // ! Calcular la energía total y el virial
         total_ener = 0.0f;
         for (int k = 0; k < n_part; k++)
+        {
             total_ener += ener[k];
+            total_virial += virial[k];
+        }
 
         if (i % 1000 == 0)
         {
@@ -192,8 +226,17 @@ int main(int argc, char const *argv[])
             }
             nprom++;
             // gr(x, y, z, g, n_part, l_caja);
+
+            // Normalizar el virial y calcular el factor de compresibilidad
+            total_virial /= 3.0f * (float)(n_part * nprom);
+            big_z = 1.0f + total_virial;
+
+            // * Guardar a archivo
+            fprintf(f_ener, "%d,%f,%f\n", i, total_ener / ((float)(n_part)), big_z);
         }
     }
+    
+    fclose(f_ener);
 
     printf("%.10f %d\n", dr, nprom);
 
@@ -207,7 +250,7 @@ int main(int argc, char const *argv[])
     // {
     //     r[i] = (i - 1) * dr;
     //     dv = 4.0f * PI * r[i] * r[i] * dr;
-    //     fnorm = powff(l_caja, 3.0f) / (powff(n_part, 2.0f) * nprom * dv);
+    //     fnorm = powf(l_caja, 3.0f) / (powf(n_part, 2.0f) * nprom * dv);
     //     g[i] = g[i] * fnorm;
     //     fprintf(f_gr, "%.10f %.10f\n", r[i], g[i]);
     // }

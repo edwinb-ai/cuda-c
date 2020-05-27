@@ -33,11 +33,12 @@ void iniconf(float *x, float *y, float *z, float rho, float rc, int num_part)
 
 __global__
 void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
-                          int num_part, float box_l, float *ener)
+                          int num_part, float box_l, float *ener, float *vir)
 {
     // Parámetros
     float rc = box_l * 0.5f;
     // float d_r = rc / nm;
+    float virial_sum = 0.0f;
 
     // Inicializar algunas variables de la posicion
     float xij = 0.0f, yij = 0.0f, zij = 0.0f, rij = 0.0f;
@@ -45,10 +46,11 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
     float uij = 0.0f;
     float potential = 0.0f;
     int i = 0, j = 0;
+    // Índices para GPU
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
     int stride = blockDim.x * gridDim.x;
 
-    for (i = idx; i < num_part - 1; i += stride)
+    for (i = idx; i < num_part; i += stride)
     {
         // Inicializar valores
         fx[i] = 0.0f;
@@ -109,9 +111,13 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
 
                 // Actualizar los valores de la energía
                 potential += uij;
+
+                // Calcular el valor del virial
+                virial_sum += (fij * xij * xij / rij) + (fij * yij * yij / rij) + (fij * zij * zij / rij);
             }
         }
         ener[i] = potential;
+        vir[i] = virial_sum;
     }
 }
 
@@ -156,26 +162,21 @@ void gr(float *x, float *y, float *z, float *g, int num_part, float box_l)
 
 __global__
 void position(float *x, float *y, float *z, float *fx, float *fy, float *fz, float dtt,
-                         float box_l, int num_part, int pbc, float *randvec)
+                         float box_l, int num_part, int pbc, float *randx, float *randy, float *randz)
 {
     // Inicializar algunas variables
     float dx = 0.0f;
     float dy = 0.0f;
     float dz = 0.0f;
-    float sigma = sqrtf(2.0f * dtt);
     int i = 0;
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
     int stride = blockDim.x * gridDim.x;
 
     for (i = idx; i < num_part; i += stride)
     {
-        dx = sigma * randvec[3 * i];
-        dy = sigma * randvec[(3 * i) + 1];
-        dz = sigma * randvec[(3 * i) + 2];
-
-        x[i] += fx[i] * dtt + dx;
-        y[i] += fy[i] * dtt + dy;
-        z[i] += fz[i] * dtt + dz;
+        x[i] += fx[i] * dtt + randx[i];
+        y[i] += fy[i] * dtt + randy[i];
+        z[i] += fz[i] * dtt + randz[i];
 
         if (pbc == 1)
         {
