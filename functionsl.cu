@@ -165,9 +165,6 @@ void position(float *x, float *y, float *z, float *fx, float *fy, float *fz, flo
                          float box_l, int num_part, int pbc, float *randx, float *randy, float *randz)
 {
     // Inicializar algunas variables
-    float dx = 0.0f;
-    float dy = 0.0f;
-    float dz = 0.0f;
     int i = 0;
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
     int stride = blockDim.x * gridDim.x;
