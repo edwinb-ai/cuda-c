@@ -205,6 +205,7 @@ int main(int argc, char const *argv[])
 
         // ! Calcular la energía total y el virial
         total_ener = 0.0f;
+        total_virial = 0.0f;
         for (int k = 0; k < n_part; k++)
         {
             total_ener += ener[k];
@@ -271,7 +272,7 @@ int main(int argc, char const *argv[])
             difusion<<<bloques, hilos>>>(n_part, cfx, cfy, cfz, dif, i, j);
             cudaDeviceSynchronize();
         }
-        aux = (n_part * (nprom - i));
+        aux = n_part * (nprom - i);
         wt[i] += (dif[1] / aux);
     }
 

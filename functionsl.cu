@@ -56,13 +56,13 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
         fx[i] = 0.0f;
         fy[i] = 0.0f;
         fz[i] = 0.0f;
-        ener[i] = 0.0f;
     }
 
     for (i = idx; i < num_part - 1; i += stride)
     {
         // Inicializar valores
         potential = 0.0f;
+        virial_sum = 0.0f;
 
         for (j = 0; j < num_part; j++)
         {
@@ -113,7 +113,7 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
                 potential += uij;
 
                 // Calcular el valor del virial
-                virial_sum += (fij * xij * xij / rij) + (fij * yij * yij / rij) + (fij * zij * zij / rij);
+                virial_sum -= (fij * xij * xij / rij) + (fij * yij * yij / rij) + (fij * zij * zij / rij);
             }
         }
         ener[i] = potential;
