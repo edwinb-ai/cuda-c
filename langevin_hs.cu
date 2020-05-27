@@ -200,7 +200,7 @@ int main(int argc, char const *argv[])
         cudaDeviceSynchronize();
 
         // * Calcular energías, fuerzas y virial
-        rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener);
+        rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener, virial);
         cudaDeviceSynchronize();
 
         // ! Calcular la energía total y el virial
@@ -290,8 +290,11 @@ int main(int argc, char const *argv[])
     cudaFree(fx);
     cudaFree(fy);
     cudaFree(fz);
-    cudaFree(rngvec_dev);
+    cudaFree(rngvecx_dev);
+    cudaFree(rngvecy_dev);
+    cudaFree(rngvecz_dev);
     cudaFree(ener);
+    cudaFree(virial);
     // cudaFree(r);
     // cudaFree(g);
     cudaFree(t);
@@ -302,5 +305,5 @@ int main(int argc, char const *argv[])
     cudaFree(dif);
     cudaDeviceReset();
 
-    return EXIT_SUCCESS;
+    return 0;
 }
