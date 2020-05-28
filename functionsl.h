@@ -13,7 +13,7 @@ static const float a_param = 134.552662342f;
 static const float b_param = 1.0204081632f;
 static const float temp = 1.4737f;
 static const int mt_n = 200000;
-static const int nm = 512;
+static const int nm = 256;
 static const float PI = 3.141592653f;
 
 // Funciones generales del código
