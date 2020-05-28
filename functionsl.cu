@@ -73,9 +73,9 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
             fij = 0.0f;
 
             // Contribucion de pares
-            xij = x[i] - x[j];
-            yij = y[i] - y[j];
-            zij = z[i] - z[j];
+            xij = x[j] - x[i];
+            yij = y[j] - y[i];
+            zij = z[j] - z[i];
 
             // Condiciones de frontera
             xij -= box_l * roundf(xij / box_l);
