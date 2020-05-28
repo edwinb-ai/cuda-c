@@ -229,8 +229,9 @@ int main(int argc, char const *argv[])
             // gr(x, y, z, g, n_part, l_caja);
 
             // Normalizar el virial y calcular el factor de compresibilidad
-            total_virial /= 3.0f * (float)(n_part * nprom);
-            big_z = 1.0f + total_virial;
+            total_virial /= 3.0f * (float)(n_part);
+            big_z += 1.0f + total_virial;
+            big_z /= (float)(nprom);
 
             // * Guardar a archivo
             fprintf(f_ener, "%d,%f,%f\n", i, total_ener / ((float)(n_part)), big_z);

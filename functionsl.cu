@@ -91,7 +91,7 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
                 {
                     uij = (a_param / temp) * (powf(1.0f / rij, lambda) - powf(1.0f / rij, lambda - 1.0f));
                     fij = lambda * powf(1.0f / rij, lambda + 1.0f) - (lambda - 1.0f) * powf(1.0f / rij, lambda);
-                    fij *= (a_param / temp);
+                    fij *= -(a_param / temp);
                     uij += (1.0f / temp);
                 }
                 else
@@ -113,7 +113,7 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
                 potential += uij;
 
                 // Calcular el valor del virial
-                virial_sum -= (fij * xij * xij / rij) + (fij * yij * yij / rij) + (fij * zij * zij / rij);
+                virial_sum += 0.5f * (fx[i] * xij) + (fy[i] * yij) + (fz[i] * zij);
             }
         }
         ener[i] = potential;
