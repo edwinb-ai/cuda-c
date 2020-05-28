@@ -90,9 +90,10 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
                 if (rij < b_param)
                 {
                     uij = (a_param / temp) * (powf(1.0f / rij, lambda) - powf(1.0f / rij, lambda - 1.0f));
-                    fij = lambda * powf(1.0f / rij, lambda + 1.0f) - (lambda - 1.0f) * powf(1.0f / rij, lambda);
-                    fij *= -(a_param / temp);
                     uij += (1.0f / temp);
+                    
+                    fij = lambda * powf(1.0f / rij, lambda + 1.0f) - (lambda - 1.0f) * powf(1.0f / rij, lambda);
+                    fij *= a_param / temp;
                 }
                 else
                 {
