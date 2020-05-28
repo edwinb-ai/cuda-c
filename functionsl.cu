@@ -93,7 +93,7 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
                     uij += (1.0f / temp);
                     
                     fij = lambda * powf(1.0f / rij, lambda + 1.0f) - (lambda - 1.0f) * powf(1.0f / rij, lambda);
-                    fij *= a_param / temp;
+                    fij *= -a_param / temp;
                 }
                 else
                 {
