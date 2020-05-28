@@ -78,9 +78,9 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
             zij = z[i] - z[j];
 
             // Condiciones de frontera
-            xij -= box_l * roundf(xij / box_l);
-            yij -= box_l * roundf(yij / box_l);
-            zij -= box_l * roundf(zij / box_l);
+            xij -= (box_l * roundf(xij / box_l));
+            yij -= (box_l * roundf(yij / box_l));
+            zij -= (box_l * roundf(zij / box_l));
 
             rij = sqrtf(xij * xij + yij * yij + zij * zij);
 
@@ -143,9 +143,9 @@ void gr(float *x, float *y, float *z, float *g, int num_part, float box_l)
             zij = z[i] - z[j];
 
             // Condiciones de frontera
-            xij -= box_l * roundf(xij / box_l);
-            yij -= box_l * roundf(yij / box_l);
-            zij -= box_l * roundf(zij / box_l);
+            xij -= (box_l * roundf(xij / box_l));
+            yij -= (box_l * roundf(yij / box_l));
+            zij -= (box_l * roundf(zij / box_l));
 
             rij = sqrtf(xij * xij + yij * yij + zij * zij);
 
@@ -178,9 +178,9 @@ void position(float *x, float *y, float *z, float *fx, float *fy, float *fz, flo
 
         if (pbc == 1)
         {
-            x[i] -= box_l * roundf(x[i] / box_l);
-            y[i] -= box_l * roundf(y[i] / box_l);
-            z[i] -= box_l * roundf(z[i] / box_l);
+            x[i] -= (box_l * roundf(x[i] / box_l));
+            y[i] -= (box_l * roundf(y[i] / box_l));
+            z[i] -= (box_l * roundf(z[i] / box_l));
         }
     }
 }
