@@ -91,8 +91,10 @@ int main(int argc, char const *argv[])
     float total_virial = 0.0f;
 
     // Asignar hilos y bloques
+    int numSMs;
+    cudaDeviceGetAttribute(&numSMs, cudaDevAttrMultiProcessorCount, devId);
     int hilos = 256;
-    int bloques = roundf((n_part + hilos - 1) / hilos);
+    int bloques = 32 * numSMs;
 
     // SI SE INGRESA UNA CONFIGURACION DE TERMALIZACION, SE LEE:
     if (config_termal == 1)
