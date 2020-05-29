@@ -218,7 +218,7 @@ int main(int argc, char const *argv[])
         }
         if (i % ncep == 0)
         {
-            t[nprom] = d_tiempo * (float)(ncep) * nprom;
+            t[nprom] = d_tiempo * (float)(ncep * nprom);
             for (int j = 0; j < n_part; j++)
             {
                 cfx[nprom * n_part + j] = x[j];
@@ -274,13 +274,13 @@ int main(int argc, char const *argv[])
     {
         dif[1] = 0.0f;
         // printf("%d\n", nprom-i);
-        for (size_t j = 0; j < nprom - i; j++)
+        for (size_t j = 0; j < (nprom - i); j++)
         {
             difusion<<<bloques, hilos>>>(n_part, cfx, cfy, cfz, dif, i, j);
-            cudaDeviceSynchronize();
+            // cudaDeviceSynchronize();
         }
         aux = n_part * (nprom - i);
-        wt[i] += (dif[1] / aux);
+        wt[i] += (dif[1] / (float)(aux));
     }
 
     wt_f = fopen(argv[8], "w");
@@ -311,7 +311,7 @@ int main(int argc, char const *argv[])
     cudaFree(cfz);
     cudaFree(wt);
     cudaFree(dif);
-    cudaDeviceReset();
+    // cudaDeviceReset();
 
     return 0;
 }

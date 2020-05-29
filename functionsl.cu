@@ -115,7 +115,7 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
                 potential += uij;
 
                 // Calcular el valor del virial
-                virial_sum -= (fx[j] * xij) + (fy[j] * yij) + (fz[j] * zij);
+                virial_sum += (fij * xij * xij / rij) + (fij * yij * yij / rij) + (fij * zij * zij / rij);
             }
         }
         ener[i] = potential;
@@ -200,6 +200,6 @@ void difusion(const int n_part, double *cfx, double *cfy, double *cfz, float *di
         dx = cfx[(j + i) * n_part + k] - cfx[j * n_part + k];
         dy = cfy[(j + i) * n_part + k] - cfy[j * n_part + k];
         dz = cfz[(j + i) * n_part + k] - cfz[j * n_part + k];
-        atomicAdd(&dif[1], dx * dx + dy * dy + dz * dz);
+        atomicAdd(&dif[0], dx * dx + dy * dy + dz * dz);
     }
 }
