@@ -92,7 +92,7 @@ int main(int argc, char const *argv[])
 
     // Asignar hilos y bloques
     int numSMs;
-    cudaDeviceGetAttribute(&numSMs, cudaDevAttrMultiProcessorCount, devId);
+    cudaDeviceGetAttribute(&numSMs, cudaDevAttrMultiProcessorCount, 0);
     int hilos = 256;
     int bloques = 32 * numSMs;
 
