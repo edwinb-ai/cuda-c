@@ -236,11 +236,11 @@ int main(int argc, char const *argv[])
 
             // Normalizar el virial y calcular el factor de compresibilidad
             total_virial /= (float)(3.0f * n_part);
-            big_z += 1.0f + total_virial;
-            big_z /= (float)(nprom);
+            big_z = 1.0f + total_virial;
+            // big_z /= (float)(nprom);
 
             // * Guardar a archivo
-            fprintf(f_ener, "%d,%f,%f,%f\n", i, total_ener / ((float)(n_part)), 1.0f + total_virial, big_z);
+            fprintf(f_ener, "%d,%f,%f\n", i, total_ener / ((float)(n_part)), big_z);
         }
     }
     
@@ -279,7 +279,7 @@ int main(int argc, char const *argv[])
         for (size_t j = 0; j < (nprom - i); j++)
         {
             difusion<<<bloques, hilos>>>(n_part, cfx, cfy, cfz, dif, i, j);
-            // cudaDeviceSynchronize();
+            cudaDeviceSynchronize();
         }
         aux = n_part * (nprom - i);
         wt[i] += (dif[1] / (float)(aux));
