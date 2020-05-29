@@ -115,7 +115,7 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
                 potential += uij;
 
                 // Calcular el valor del virial
-                virial_sum += (fx[i] * xij) + (fy[i] * yij) + (fz[i] * zij);
+                virial_sum -= (fx[j] * xij) + (fy[j] * yij) + (fz[j] * zij);
             }
         }
         ener[i] = potential;
