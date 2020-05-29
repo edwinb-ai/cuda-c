@@ -274,7 +274,7 @@ int main(int argc, char const *argv[])
     // Mean-squared displacement
     for (size_t i = 0; i < nprom; i++)
     {
-        dif[1] = 0.0f;
+        dif[0] = 0.0f;
         // printf("%d\n", nprom-i);
         for (size_t j = 0; j < (nprom - i); j++)
         {
@@ -282,7 +282,7 @@ int main(int argc, char const *argv[])
             cudaDeviceSynchronize();
         }
         aux = n_part * (nprom - i);
-        wt[i] += (dif[1] / (float)(aux));
+        wt[i] += (dif[0] / (float)(aux));
     }
 
     wt_f = fopen(argv[8], "w");
