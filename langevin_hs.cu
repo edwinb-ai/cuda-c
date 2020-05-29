@@ -240,7 +240,7 @@ int main(int argc, char const *argv[])
             big_z /= (float)(nprom);
 
             // * Guardar a archivo
-            fprintf(f_ener, "%d,%f,%f\n", i, total_ener / ((float)(n_part)), big_z);
+            fprintf(f_ener, "%d,%f,%f,%f\n", i, total_ener / ((float)(n_part)), 1.0f + total_virial, big_z);
         }
     }
     
