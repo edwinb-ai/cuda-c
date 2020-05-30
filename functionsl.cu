@@ -1,39 +1,38 @@
 #include "functionsl.h"
 
-void iniconf(float *x, float *y, float *z, float rho, float rc, int num_part)
+void iniconf(float3 *positions, float rho, float rc, int num_part)
 {
     // Definir la distancia según la densidad
     float dist = powf(1.0f / rho, 1.0f / 3.0f);
 
     // Inicializar las primeras posiciones
-    x[0] = -rc + (dist / 2.0f);
-    y[0] = -rc + (dist / 2.0f);
-    z[0] = -rc + (dist / 2.0f);
+    positions[0].x = -rc + (dist / 2.0f);
+    positions[0].y = -rc + (dist / 2.0f);
+    positions[0].z = -rc + (dist / 2.0f);
 
-    for (int i = 1; i < num_part - 1; i++)
+    for (int i = 1; i < (num_part - 1); i++)
     {
-        x[i] = x[i - 1] + dist;
-        y[i] = y[i - 1];
-        z[i] = z[i - 1];
+        positions[i].x = positions[i - 1].x + dist;
+        positions[i].y = positions[i - 1].y;
+        positions[i].z = positions[i - 1].z;
 
-        if (x[i] > rc)
+        if (positions[i].x > rc)
         {
-            x[i] = x[0];
-            y[i] = y[i - 1] + dist;
+            positions[i].x = positions[0].x;
+            positions[i].y = positions[i- 1].y + dist;
 
-            if (y[i] > rc)
+            if (positions[i].y > rc)
             {
-                x[i] = x[0];
-                y[i] = y[0];
-                z[i] = z[i - 1] + dist;
+                positions[i].x = positions[0].x;
+                positions[i].y = positions[0].y;
+                positions[i].z = positions[i - 1].z + dist;
             }
         }
     }
 }
 
-__global__
-void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
-                          int num_part, float box_l, float *ener, float *vir)
+__global__ void rdf_force(float3 *positions, float3 *forces, int num_part, float box_l, 
+    float *ener, float *vir)
 {
     // Parámetros
     float rc = box_l * 0.5f;
@@ -54,9 +53,9 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
     for (i = idx; i < num_part; i += stride)
     {
         // Inicializar valores
-        fx[i] = 0.0f;
-        fy[i] = 0.0f;
-        fz[i] = 0.0f;
+        forces[i].x = 0.0f;
+        forces[i].y = 0.0f;
+        forces[i].z = 0.0f;
     }
 
     for (i = idx; i < num_part; i += stride)
@@ -74,9 +73,9 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
             fij = 0.0f;
 
             // Contribucion de pares
-            xij = x[i] - x[j];
-            yij = y[i] - y[j];
-            zij = z[i] - z[j];
+            xij = positions[i].x - positions[j].x;
+            yij = positions[i].y - positions[j].y;
+            zij = positions[i].z - positions[j].z;
 
             // Condiciones de frontera
             xij -= (box_l * roundf(xij / box_l));
@@ -103,13 +102,19 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
                 }
 
                 // Actualizar los valores de las fuerzas
-                atomicAdd(&fx[i], (fij * xij) / rij);
-                atomicAdd(&fy[i], (fij * yij) / rij);
-                atomicAdd(&fz[i], (fij * zij) / rij);
+                // atomicAdd(&fx[i], (fij * xij) / rij);
+                // atomicAdd(&fy[i], (fij * yij) / rij);
+                // atomicAdd(&fz[i], (fij * zij) / rij);
+                forces[i].x += fij * xij / rij;
+                forces[i].y += fij * yij / rij;
+                forces[i].z += fij * zij / rij;
 
-                atomicAdd(&fx[j], -(fij * xij) / rij);
-                atomicAdd(&fy[j], -(fij * yij) / rij);
-                atomicAdd(&fz[j], -(fij * zij) / rij);
+                // atomicAdd(&fx[j], -(fij * xij) / rij);
+                // atomicAdd(&fy[j], -(fij * yij) / rij);
+                // atomicAdd(&fz[j], -(fij * zij) / rij);
+                forces[i].x -= fij * xij / rij;
+                forces[i].y -= fij * yij / rij;
+                forces[i].z -= fij * zij / rij;
 
                 // Actualizar los valores de la energía
                 potential += uij;
@@ -123,7 +128,7 @@ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
     }
 }
 
-void gr(float *x, float *y, float *z, float *g, int num_part, float box_l)
+void gr(float3 *positions, float *g, int num_part, float box_l)
 {
     // Parámetros
     float rc = box_l * 0.5f;
@@ -139,9 +144,9 @@ void gr(float *x, float *y, float *z, float *g, int num_part, float box_l)
         {
 
             // Contribucion de pares
-            xij = x[i] - x[j];
-            yij = y[i] - y[j];
-            zij = z[i] - z[j];
+            xij = positions[i].x - positions[j].x;
+            yij = positions[i].y - positions[j].y;
+            zij = positions[i].z - positions[j].z;
 
             // Condiciones de frontera
             xij -= (box_l * roundf(xij / box_l));
@@ -163,8 +168,8 @@ void gr(float *x, float *y, float *z, float *g, int num_part, float box_l)
 }
 
 __global__
-void position(float *x, float *y, float *z, float *fx, float *fy, float *fz, float dtt,
-                         float box_l, int num_part, int pbc, float *randx, float *randy, float *randz)
+void position(float3 *positions, float3 *forces, float dtt,
+float box_l, int num_part, int pbc, float *randx, float *randy, float *randz)
 {
     // Inicializar algunas variables
     int i = 0;

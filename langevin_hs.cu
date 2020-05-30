@@ -58,18 +58,24 @@ int main(int argc, char const *argv[])
     cudaMallocManaged(&rngvecz_dev, n_part * sizeof(float));
 
     // Inicializar los arreglos
-    float *x;
-    cudaMallocManaged(&x, n_part * sizeof(float));
-    float *y;
-    cudaMallocManaged(&y, n_part * sizeof(float));
-    float *z;
-    cudaMallocManaged(&z, n_part * sizeof(float));
-    float *fx;
-    cudaMallocManaged(&fx, n_part * sizeof(float));
-    float *fy;
-    cudaMallocManaged(&fy, n_part * sizeof(float));
-    float *fz;
-    cudaMallocManaged(&fz, n_part * sizeof(float));
+    float3 *positions;
+    cudaMallocManaged(&positions, n_part * sizeof(float3));
+    float3 *rr_ref;
+    cudaMallocManaged(&rr_ref, n_part * sizeof(float3))
+    // float *x;
+    // cudaMallocManaged(&x, n_part * sizeof(float));
+    // float *y;
+    // cudaMallocManaged(&y, n_part * sizeof(float));
+    // float *z;
+    // cudaMallocManaged(&z, n_part * sizeof(float));
+    float3 *forces;
+    cudaMallocManaged(&forces, n_part * sizeof(float3));
+    // float *fx;
+    // cudaMallocManaged(&fx, n_part * sizeof(float));
+    // float *fy;
+    // cudaMallocManaged(&fy, n_part * sizeof(float));
+    // float *fz;
+    // cudaMallocManaged(&fz, n_part * sizeof(float));
     float *g;
     cudaMallocManaged(&g, nm * sizeof(float));
     float *t;
@@ -103,12 +109,12 @@ int main(int argc, char const *argv[])
         f_final = fopen("final_conf.dat", "r");
         for (int i = 0; i < n_part; i++)
         {
-            fscanf(f_final, "%f", &x[i]);
-            fscanf(f_final, "%f", &y[i]);
-            fscanf(f_final, "%f", &z[i]);
-            fscanf(f_final, "%f", &fx[i]);
-            fscanf(f_final, "%f", &fy[i]);
-            fscanf(f_final, "%f", &fz[i]);
+            fscanf(f_final, "%f", &positions[i].x);
+            fscanf(f_final, "%f", &positions[i].y);
+            fscanf(f_final, "%f", &positions[i].z);
+            fscanf(f_final, "%f", &forces[i].x);
+            fscanf(f_final, "%f", &forces[i].y);
+            fscanf(f_final, "%f", &forces[i].z);
         }
         fclose(f_final);
     }
@@ -116,16 +122,17 @@ int main(int argc, char const *argv[])
     else
     {
         // Configuración inicial
-        iniconf(x, y, z, rho, radio_c, n_part);
+        iniconf(positions, rho, radio_c, n_part);
         f_iniconf = fopen("conf_inicial.dat", "w");
         for (int i = 0; i < n_part; i++)
         {
-            fprintf(f_iniconf, "%.10f %.10f %.10f\n", x[i], y[i], z[i]);
+            fprintf(f_iniconf, "%.10f %.10f %.10f\n", positions[i].x,
+                positions[i].y, positions[i].y);
         }
         fclose(f_iniconf);
 
         // Verificar que la energía es cero
-        rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener, virial);
+        rdf_force<<<bloques, hilos>>>(positions, forces, n_part, l_caja, ener, virial);
         cudaDeviceSynchronize();
         total_ener = 0.0f;
         for (int i = 0; i < n_part; i++)
@@ -144,12 +151,13 @@ int main(int argc, char const *argv[])
             curandGenerateNormal(gen, rngvecz_dev, n_part, 0.0f, sigma);
 
             // * Mover las partículas
-            position<<<bloques, hilos>>>(x, y, z, fx, fy, fz, d_tiempo,
+            position<<<bloques, hilos>>>(positions, forces, d_tiempo,
                 l_caja, n_part, 1, rngvecx_dev, rngvecy_dev, rngvecz_dev);
             cudaDeviceSynchronize();
 
             // * Calcular energías, fuerzas y virial
-            rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener, virial);
+            rdf_force<<<bloques, hilos>>>(positions, forces, n_part, l_caja,
+                ener, virial);
             cudaDeviceSynchronize();
 
             // ! Calcular la energía total y el virial
@@ -180,7 +188,9 @@ int main(int argc, char const *argv[])
         // Guardar la configuración final después de termalizar
         for (int i = 0; i < n_part; i++)
         {
-            fprintf(f_final, "%.10lf %.10lf %.10lf %.10lf %.10lf %.10lf\n", x[i], y[i], z[i], fx[i], fy[i], fz[i]);
+            fprintf(f_final, "%.10lf %.10lf %.10lf %.10lf %.10lf %.10lf\n",
+                positions[i].x, positions[i].y, positions[i].z,
+                forces[i].x, forces[i].y, forces[i].z);
         }
         fclose(f_final);
     }
@@ -197,12 +207,12 @@ int main(int argc, char const *argv[])
         curandGenerateNormal(gen, rngvecz_dev, n_part, 0.0f, sigma);
 
         // * Mover las partículas
-        position<<<bloques, hilos>>>(x, y, z, fx, fy, fz, d_tiempo,
-            l_caja, n_part, 1, rngvecx_dev, rngvecy_dev, rngvecz_dev);
+        position<<<bloques, hilos>>>(positions, forces, d_tiempo,
+            l_caja, n_part, 0, rngvecx_dev, rngvecy_dev, rngvecz_dev);
         cudaDeviceSynchronize();
 
         // * Calcular energías, fuerzas y virial
-        rdf_force<<<bloques, hilos>>>(x, y, z, fx, fy, fz, n_part, l_caja, ener, virial);
+        rdf_force<<<bloques, hilos>>>(positions, forces, n_part, l_caja, ener, virial);
         cudaDeviceSynchronize();
 
         // ! Calcular la energía total y el virial
@@ -220,19 +230,23 @@ int main(int argc, char const *argv[])
         }
         if (i % ncep == 0)
         {
-            t[nprom] = d_tiempo * (float)(ncep * nprom);
+            // t[nprom] = d_tiempo * (float)(ncep * nprom);
+            if (i == 0)
+            {
+
+            }
             for (int j = 0; j < n_part; j++)
             {
-                cfx[nprom * n_part + j] = x[j];
-                cfy[nprom * n_part + j] = y[j];
-                cfz[nprom * n_part + j] = z[j];
+                cfx[nprom * n_part + j] = positions[j].x;
+                cfy[nprom * n_part + j] = positions[j].y;
+                cfz[nprom * n_part + j] = positions[j].z;
             }
             
             // Actualizar el valor total de promedios
             nprom++;
             
             // * Calcular la g(r)
-            gr(x, y, z, g, n_part, l_caja);
+            gr(positions, g, n_part, l_caja);
 
             // Normalizar el virial y calcular el factor de compresibilidad
             total_virial /= (float)(3.0f * n_part);
@@ -294,12 +308,12 @@ int main(int argc, char const *argv[])
 
     // ! Cleanup
     curandDestroyGenerator(gen);
-    cudaFree(x);
-    cudaFree(y);
-    cudaFree(z);
-    cudaFree(fx);
-    cudaFree(fy);
-    cudaFree(fz);
+    cudaFree(positions);
+    cudaFree(forces);
+    // cudaFree(z);
+    // cudaFree(fx);
+    // cudaFree(fy);
+    // cudaFree(fz);
     cudaFree(rngvecx_dev);
     cudaFree(rngvecy_dev);
     cudaFree(rngvecz_dev);

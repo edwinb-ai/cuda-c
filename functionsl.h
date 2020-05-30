@@ -17,15 +17,15 @@ static const int nm = 2048;
 static const float PI = 3.141592653f;
 
 // Funciones generales del código
-void iniconf(float *x, float *y, float *z, float rho, float t_caja, int num_part);
+void iniconf(float3 *positions, float rho, float t_caja, int num_part);
 
-__global__ void rdf_force(float *x, float *y, float *z, float *fx, float *fy, float *fz,
-int num_part, float box_l, float *ener, float *vir);
+__global__ void rdf_force(float3 *positions, float3 *forces, int num_part, float box_l, 
+float *ener, float *vir);
 
-__global__ void position(float *x, float *y, float *z, float *fx, float *fy, float *fz, float dtt,
+__global__ void position(float3 *positions, float3 *forces, float dtt,
 float box_l, int num_part, int pbc, float *randx, float *randy, float *randz);
 
-void gr(float *x, float *y, float *z, float *g, int num_part, float box_l);
+void gr(float3 *positions, float *g, int num_part, float box_l);
 
 __global__ void difusion(const int n_part, double *cfx, double *cfy, double *cfz, float *dif, size_t i, size_t j);
 
