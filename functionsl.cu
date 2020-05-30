@@ -178,15 +178,15 @@ float box_l, int num_part, int pbc, float *randx, float *randy, float *randz)
 
     for (i = idx; i < num_part; i += stride)
     {
-        x[i] += fx[i] * dtt + randx[i];
-        y[i] += fy[i] * dtt + randy[i];
-        z[i] += fz[i] * dtt + randz[i];
+        positions[i].x += forces[i].x * dtt + randx[i];
+        positions[i].y += forces[i].y * dtt + randy[i];
+        positions[i].z += forces[i].z * dtt + randz[i];
 
         if (pbc == 1)
         {
-            x[i] -= (box_l * roundf(x[i] / box_l));
-            y[i] -= (box_l * roundf(y[i] / box_l));
-            z[i] -= (box_l * roundf(z[i] / box_l));
+            positions[i].x -= (box_l * roundf(x[i] / box_l));
+            positions[i].y -= (box_l * roundf(y[i] / box_l));
+            positions[i].z -= (box_l * roundf(z[i] / box_l));
         }
     }
 }
