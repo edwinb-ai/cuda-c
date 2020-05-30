@@ -61,7 +61,7 @@ int main(int argc, char const *argv[])
     float3 *positions;
     cudaMallocManaged(&positions, n_part * sizeof(float3));
     float3 *rr_ref;
-    cudaMallocManaged(&rr_ref, n_part * sizeof(float3))
+    cudaMallocManaged(&rr_ref, n_part * sizeof(float3));
     // float *x;
     // cudaMallocManaged(&x, n_part * sizeof(float));
     // float *y;
