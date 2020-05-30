@@ -58,18 +58,18 @@ int main(int argc, char const *argv[])
     cudaMallocManaged(&rngvecz_dev, n_part * sizeof(float));
 
     // Inicializar los arreglos
-    float3 *positions;
-    cudaMallocManaged(&positions, n_part * sizeof(float3));
-    float3 *rr_ref;
-    cudaMallocManaged(&rr_ref, n_part * sizeof(float3));
+    float4 *positions;
+    cudaMallocManaged(&positions, n_part * sizeof(float4));
+    float4 *rr_ref;
+    cudaMallocManaged(&rr_ref, n_part * sizeof(float4));
     // float *x;
     // cudaMallocManaged(&x, n_part * sizeof(float));
     // float *y;
     // cudaMallocManaged(&y, n_part * sizeof(float));
     // float *z;
     // cudaMallocManaged(&z, n_part * sizeof(float));
-    float3 *forces;
-    cudaMallocManaged(&forces, n_part * sizeof(float3));
+    float4 *forces;
+    cudaMallocManaged(&forces, n_part * sizeof(float4));
     // float *fx;
     // cudaMallocManaged(&fx, n_part * sizeof(float));
     // float *fy;
@@ -230,11 +230,7 @@ int main(int argc, char const *argv[])
         }
         if (i % ncep == 0)
         {
-            // t[nprom] = d_tiempo * (float)(ncep * nprom);
-            if (i == 0)
-            {
-
-            }
+            t[nprom] = d_tiempo * (float)(ncep * nprom);
             for (int j = 0; j < n_part; j++)
             {
                 cfx[nprom * n_part + j] = positions[j].x;
@@ -280,31 +276,20 @@ int main(int argc, char const *argv[])
     fclose(f_gr);
     printf("Done with g(r)...\n");
 
-    // Mean-square displacement and intermediate scattering function
     cudaDeviceSynchronize();
-    float aux = 0.0f;
-    float *dif;
-    cudaMallocManaged(&dif, sizeof(float));
-    // Mean-squared displacement
-    for (size_t i = 0; i < nprom; i++)
-    {
-        dif[1] = 0.0f;
-        // printf("%d\n", nprom-i);
-        for (size_t j = 0; j < (nprom - i); j++)
-        {
-            difusion<<<bloques, hilos>>>(n_part, cfx, cfy, cfz, dif, i, j);
-            cudaDeviceSynchronize();
-        }
-        aux = n_part * (nprom - i);
-        wt[i] += (dif[1] / (float)(aux));
-    }
 
+    // Mean-square displacement
+    difusion(nprom, n_part, cfx, cfy, cfz, wt);
+
+    printf("Computing MSD...\n");
     wt_f = fopen(argv[8], "w");
     for (int i = 0; i < (ncp / ncep); i++)
     {
+        printf("Step %d of MSD.\n", i);
         fprintf(wt_f, "%.10f %.10f\n", t[i], wt[i]);
     }
     fclose(wt_f);
+    printf("Done with MSD.\n");
 
     // ! Cleanup
     curandDestroyGenerator(gen);
