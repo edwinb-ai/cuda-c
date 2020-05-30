@@ -200,6 +200,6 @@ void difusion(const int n_part, double *cfx, double *cfy, double *cfz, float *di
         dx = cfx[(j + i) * n_part + k] - cfx[j * n_part + k];
         dy = cfy[(j + i) * n_part + k] - cfy[j * n_part + k];
         dz = cfz[(j + i) * n_part + k] - cfz[j * n_part + k];
-        atomicAdd(&dif[0], dx * dx + dy * dy + dz * dz);
+        atomicAdd(&dif[1], dx * dx + dy * dy + dz * dz);
     }
 }
