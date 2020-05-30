@@ -184,9 +184,9 @@ float box_l, int num_part, int pbc, float *randx, float *randy, float *randz)
 
         if (pbc == 1)
         {
-            positions[i].x -= (box_l * roundf(x[i] / box_l));
-            positions[i].y -= (box_l * roundf(y[i] / box_l));
-            positions[i].z -= (box_l * roundf(z[i] / box_l));
+            positions[i].x -= (box_l * roundf(positions[i].x / box_l));
+            positions[i].y -= (box_l * roundf(positions[i].y / box_l));
+            positions[i].z -= (box_l * roundf(positions[i].z / box_l));
         }
     }
 }
