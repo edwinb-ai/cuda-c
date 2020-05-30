@@ -102,19 +102,13 @@ __global__ void rdf_force(float3 *positions, float3 *forces, int num_part, float
                 }
 
                 // Actualizar los valores de las fuerzas
-                // atomicAdd(&fx[i], (fij * xij) / rij);
-                // atomicAdd(&fy[i], (fij * yij) / rij);
-                // atomicAdd(&fz[i], (fij * zij) / rij);
-                forces[i].x += fij * xij / rij;
-                forces[i].y += fij * yij / rij;
-                forces[i].z += fij * zij / rij;
+                atomicAdd(&forces[i].x, (fij * xij) / rij);
+                atomicAdd(&forces[i].y, (fij * yij) / rij);
+                atomicAdd(&forces[i].z, (fij * zij) / rij);
 
-                // atomicAdd(&fx[j], -(fij * xij) / rij);
-                // atomicAdd(&fy[j], -(fij * yij) / rij);
-                // atomicAdd(&fz[j], -(fij * zij) / rij);
-                forces[i].x -= fij * xij / rij;
-                forces[i].y -= fij * yij / rij;
-                forces[i].z -= fij * zij / rij;
+                atomicAdd(&forces[j].x, -(fij * xij) / rij);
+                atomicAdd(&forces[j].y, -(fij * yij) / rij);
+                atomicAdd(&forces[j].z, -(fij * zij) / rij);
 
                 // Actualizar los valores de la energía
                 potential += uij;
