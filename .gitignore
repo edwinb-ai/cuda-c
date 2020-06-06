@@ -1,0 +1,4 @@
+*.csv
+*.dat
+.idea/
+cmake-build-default/

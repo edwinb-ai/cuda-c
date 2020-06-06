@@ -6,7 +6,6 @@ float *ener, float *vir)
 {
     // Parámetros
     float rc = box_l * 0.5f;
-    // float d_r = rc / nm;
     float virial_sum = 0.0f;
 
     // Inicializar algunas variables de la posicion
@@ -84,7 +83,8 @@ float *ener, float *vir)
                 potential += uij;
 
                 // Calcular el valor del virial
-                virial_sum += (fij * xij * xij / rij) + (fij * yij * yij / rij) + (fij * zij * zij / rij);
+                virial_sum += (fij * xij * xij / rij);
+                virial_sum += (fij * yij * yij / rij) + (fij * zij * zij / rij);
             }
         }
         ener[i] = potential;

@@ -71,8 +71,8 @@ void gr(float4 *positions, float *g, int num_part, float box_l)
     }
 }
 
-void difusion( const int nprom, const int n_part, 
-double *cfx, double *cfy, double *cfz, double *wt)
+void difusion( const int nprom, const int n_part,
+               float *cfx, float *cfy, float *cfz, float *wt)
 {
     double dif = 0.0;
     int i = 0, j = 0, k = 0;
